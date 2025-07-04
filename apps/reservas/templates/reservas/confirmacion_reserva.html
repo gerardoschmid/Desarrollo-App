@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Confirmación de Reserva" }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            {% if reserva %}
+            <div class="card shadow-sm">
+                <div class="card-header
+                    {% if reserva.estado == 'confirmada' %}bg-success{% elif reserva.estado == 'pendiente' %}bg-warning text-dark{% elif reserva.estado == 'cancelada' %}bg-danger{% else %}bg-secondary{% endif %}
+                    text-white text-center">
+                    <h2 class="h4 mb-0">
+                        {% if reserva.estado == 'pendiente' %}
+                            <i class="fas fa-hourglass-half me-2"></i>Solicitud de Reserva Recibida
+                        {% elif reserva.estado == 'confirmada' %}
+                            <i class="fas fa-check-circle me-2"></i>Reserva Confirmada
+                        {% elif reserva.estado == 'cancelada' %}
+                            <i class="fas fa-times-circle me-2"></i>Reserva Cancelada
+                        {% else %}
+                            Detalle de Reserva
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if reserva.estado == 'pendiente' %}
+                    <p class="lead text-center">¡Gracias, {{ reserva.cliente.nombre|default:"estimado cliente" }}!</p>
+                    <p class="text-center">Hemos recibido tu solicitud de reserva (<strong>#{{ reserva.pk }}</strong>). Nos pondremos en contacto contigo a la brevedad para confirmar los detalles y procesar tu estancia.</p>
+                    {% elif reserva.estado == 'confirmada' %}
+                    <p class="lead text-center">¡Tu reserva (<strong>#{{ reserva.pk }}</strong>) está confirmada!</p>
+                    <p class="text-center">Gracias por elegir Hotel Premium, {{ reserva.cliente.nombre|default:"estimado cliente" }}. ¡Esperamos darte la bienvenida!</p>
+                    {% elif reserva.estado == 'cancelada' %}
+                     <p class="lead text-center">La reserva (<strong>#{{ reserva.pk }}</strong>) ha sido cancelada.</p>
+                     <p class="text-center">Si tienes alguna pregunta, no dudes en contactarnos.</p>
+                    {% endif %}
+
+                    <hr>
+                    <h5 class="mb-3">Detalles de la Reserva:</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Número de Reserva:</strong> #{{ reserva.pk }}</li>
+                        <li class="list-group-item"><strong>Habitación:</strong> {{ reserva.habitacion.tipo_habitacion.nombre }} - {{ reserva.habitacion.numero_habitacion }}</li>
+                        <li class="list-group-item"><strong>Cliente:</strong> {{ reserva.cliente.nombre_completo }} ({{ reserva.cliente.email }})</li>
+                        <li class="list-group-item"><strong>Fecha de Entrada:</strong> {{ reserva.fecha_entrada|date:"d M Y" }}</li>
+                        <li class="list-group-item"><strong>Fecha de Salida:</strong> {{ reserva.fecha_salida|date:"d M Y" }}</li>
+                        <li class="list-group-item"><strong>Noches:</strong> {{ reserva.duracion_estancia }}</li>
+                        <li class="list-group-item"><strong>Huéspedes:</strong> {{ reserva.numero_huespedes }}</li>
+                        <li class="list-group-item">
+                            <strong>Estado:</strong>
+                            <span class="badge
+                                {% if reserva.estado == 'confirmada' %}bg-success{% elif reserva.estado == 'pendiente' %}bg-warning text-dark{% elif reserva.estado == 'cancelada' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ reserva.get_estado_display }}
+                            </span>
+                        </li>
+                        {% if reserva.costo_total %}
+                        <li class="list-group-item"><strong>Costo Total Estimado:</strong> ${{ reserva.costo_total|floatformat:2 }}</li>
+                        {% endif %}
+                        {% if reserva.notas_adicionales %}
+                        <li class="list-group-item"><strong>Notas:</strong> {{ reserva.notas_adicionales }}</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'core:inicio' %}" class="btn btn-primary"><i class="fas fa-home me-2"></i>Volver al Inicio</a>
+                    {% if user.is_staff or request.user == reserva.cliente.user %} {# Asumiendo que cliente tiene un campo user #}
+                        {# <a href="{% url 'reservas:admin_detalle_reserva' pk=reserva.pk %}" class="btn btn-outline-secondary ms-2">Ver en Panel</a> #}
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center" role="alert">
+                No se encontró la información de la reserva solicitada.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

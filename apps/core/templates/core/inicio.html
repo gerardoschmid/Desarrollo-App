@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero-section text-center p-5 mb-5 position-relative">
+        <div class="hero-overlay"></div>
+        <div class="container position-relative" style="z-index: 2;">
+            <h1 class="display-3 fw-bold text-white">Bienvenido a Hotel Premium</h1>
+            <p class="lead fs-4 text-white-50 mb-4">Experimenta el lujo y confort en el corazón de la ciudad.</p>
+            <div>
+                <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-primary btn-lg px-4 me-sm-3">¡Reserva Ahora!</a>
+                <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-outline-light btn-lg px-4">Ver Habitaciones</a>
+            </div>
+        </div>
+    </section>
+
+    <style>
+    .hero-section {
+        background-image: url('{% static 'images/hero_background.jpg' %}'); /* Asegúrate que esta imagen exista */
+        background-size: cover;
+        background-position: center center;
+        min-height: 70vh; /* Aumentar altura */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem; /* Esquinas redondeadas suaves */
+    }
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5); /* Overlay oscuro semitransparente */
+        z-index: 1;
+        border-radius: inherit; /* Heredar redondeo */
+    }
+    </style>
+
+    <!-- Sección de Búsqueda de Disponibilidad (simplificada) -->
+    <section class="mb-5 p-4 shadow-sm rounded bg-white">
+        <h2 class="text-center mb-4">Busca tu Estancia Perfecta</h2>
+        <form method="GET" action="{% url 'reservas:crear_reserva' %}"> {# O a una URL de búsqueda específica #}
+            <div class="row g-3 align-items-end">
+                <div class="col-md">
+                    <label for="fecha_entrada" class="form-label">Fecha de Entrada</label>
+                    <input type="date" class="form-control" id="fecha_entrada" name="fecha_entrada">
+                </div>
+                <div class="col-md">
+                    <label for="fecha_salida" class="form-label">Fecha de Salida</label>
+                    <input type="date" class="form-control" id="fecha_salida" name="fecha_salida">
+                </div>
+                <div class="col-md-auto">
+                    <button type="submit" class="btn btn-success w-100">Verificar Disponibilidad</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- Tipos de Habitación Destacados -->
+    {% if tipos_habitacion_destacados %}
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 display-6 fw-bold">Descubre Nuestras Habitaciones</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for tipo in tipos_habitacion_destacados %}
+                <div class="col">
+                    <div class="card h-100 shadow-lg border-0 room-type-card">
+                        {% if tipo.imagen_representativa %}
+                            <img src="{{ tipo.imagen_representativa.imagen.url }}" class="card-img-top" alt="{{ tipo.nombre }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                             <img src="{% static 'images/default_room_large.png' %}" class="card-img-top" alt="Habitación {{ tipo.nombre }}" style="height: 250px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">{{ tipo.nombre }}</h5>
+                            <p class="card-text small text-muted flex-grow-1">{{ tipo.descripcion|truncatewords:22 }}</p>
+                            {# Podríamos añadir un precio "desde" si lo tuviéramos #}
+                            {# <p class="h5 text-primary fw-light mb-3">Desde $XX/noche</p> #}
+                            <a href="{% url 'habitaciones:detalle_tipo_habitacion' pk=tipo.pk %}" class="btn btn-primary mt-auto stretched-link">Ver Detalles y Reservar</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-5">
+                 <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-lg btn-outline-primary">Ver Todos los Tipos de Habitación</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <style>
+        .room-type-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .room-type-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        }
+    </style>
+
+    <!-- Servicios Destacados -->
+    {% if servicios_destacados %}
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5 display-6 fw-bold">Servicios que Elevan tu Estancia</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for servicio in servicios_destacados %}
+                <div class="col">
+                    <div class="card h-100 shadow-lg border-0 text-center service-card">
+                        {% if servicio.imagen %}
+                        <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center" style="height: 200px; background-color: #e9ecef;">
+                            <i class="fas fa-concierge-bell fa-4x text-muted"></i> {# Icono más grande y genérico #}
+                        </div>
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold">{{ servicio.nombre }}</h5>
+                            <p class="card-text small text-muted flex-grow-1">{{ servicio.descripcion|truncatewords:18 }}</p>
+                            <a href="{% url 'servicios:detalle_servicio' pk=servicio.pk %}" class="btn btn-outline-primary btn-sm mt-auto stretched-link">Descubre Más</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-5">
+                 <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-lg btn-primary">Explora Todos Nuestros Servicios</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <style>
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        }
+    </style>
+
+    <!-- Llamada a la Acción - Galería o Sobre Nosotros -->
+    <section class="py-5 bg-light rounded">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2>Descubre Más Sobre Hotel Premium</h2>
+                    <p class="lead">Conoce nuestra historia, explora nuestras instalaciones y vive una experiencia inolvidable.</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{% url 'core:sobre_nosotros' %}" class="btn btn-info btn-lg mb-2 d-block">Sobre Nosotros</a>
+                    <a href="{% url 'core:galeria' %}" class="btn btn-secondary btn-lg d-block">Ver Galería</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{# Scripts adicionales si son necesarios para esta página #}
+<script>
+    // Ejemplo: Llenar fechas por defecto (hoy y mañana)
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     const today = new Date();
+    //     const tomorrow = new Date(today);
+    //     tomorrow.setDate(tomorrow.getDate() + 1);
+
+    //     const formatDate = (date) => {
+    //         let d = new Date(date),
+    //             month = '' + (d.getMonth() + 1),
+    //             day = '' + d.getDate(),
+    //             year = d.getFullYear();
+    //         if (month.length < 2) month = '0' + month;
+    //         if (day.length < 2) day = '0' + day;
+    //         return [year, month, day].join('-');
+    //     }
+
+    //     const fechaEntradaInput = document.getElementById('fecha_entrada');
+    //     const fechaSalidaInput = document.getElementById('fecha_salida');
+
+    //     if (fechaEntradaInput && !fechaEntradaInput.value) {
+    //         fechaEntradaInput.value = formatDate(today);
+    //     }
+    //     if (fechaSalidaInput && !fechaSalidaInput.value) {
+    //         fechaSalidaInput.value = formatDate(tomorrow);
+    //     }
+    // });
+</script>
+{% endblock %}

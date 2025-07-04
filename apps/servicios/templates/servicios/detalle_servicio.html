@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if servicio %}
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" class="img-fluid rounded shadow" alt="{{ servicio.nombre }}">
+            {% else %}
+                <div class="d-flex justify-content-center align-items-center bg-light rounded shadow" style="min-height: 300px;">
+                    <i class="fas fa-concierge-bell fa-7x text-secondary"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <h1 class="display-6 fw-bold">{{ servicio.nombre }}</h1>
+            <p class="lead">{{ servicio.descripcion }}</p>
+
+            {% if servicio.precio %}
+                <h4 class="text-primary my-3">Precio: ${{ servicio.precio|floatformat:2 }}</h4>
+            {% else %}
+                <h4 class="text-success my-3">Servicio Gratuito o Incluido</h4>
+            {% endif %}
+
+            {# Aquí podrías añadir más detalles, como horarios, condiciones, etc. #}
+            {# <p><strong>Horario:</strong> Lunes a Viernes, 9:00 AM - 5:00 PM</p> #}
+
+            <div class="mt-4">
+                <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-success btn-lg me-2">
+                    <i class="fas fa-calendar-check me-2"></i>Reservar Ahora
+                </a>
+                <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Servicios
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-danger text-center" role="alert">
+        El servicio solicitado no se encontró o no está disponible.
+        <a href="{% url 'servicios:lista_servicios' %}" class="alert-link">Ver todos nuestros servicios</a>.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

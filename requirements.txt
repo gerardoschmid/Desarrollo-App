@@ -1,0 +1,5 @@
+Django>=5.0,<5.1 # O la versión específica que estés usando
+Pillow>=9.0 # Para el manejo de ImageField
+# psycopg2-binary # Descomentar si usas PostgreSQL en algún momento
+# python-dotenv # Opcional, para variables de entorno
+# Agrega aquí otras dependencias que puedas necesitar (ej. django-crispy-forms)

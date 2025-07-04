@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Sobre Nosotros" }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">{{ page_title|default:"Sobre Nosotros" }}</h1>
+        <p class="lead text-muted">Conoce la historia, misión y visión de Hotel Premium.</p>
+    </div>
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <img src="{% static 'images/hotel_facade.jpg' %}" class="img-fluid rounded shadow-sm mb-4 mb-md-0" alt="Fachada del Hotel Premium">
+            {# Reemplaza 'hotel_facade.jpg' con una imagen real en tu directorio static/images/ #}
+        </div>
+        <div class="col-md-6">
+            <h2 class="h3">Nuestra Historia</h2>
+            <p>Fundado en [Año de Fundación], Hotel Premium nació con la visión de ofrecer una experiencia de hospitalidad inigualable en el corazón de [Ciudad/Región]. Desde nuestros humildes comienzos, hemos crecido y evolucionado, pero nuestro compromiso con la excelencia y la satisfacción del cliente ha permanecido constante.</p>
+            <p>A lo largo de los años, hemos tenido el honor de acoger a miles de huéspedes, desde viajeros de negocios hasta familias en vacaciones, cada uno con una historia única. Nos enorgullece ser parte de sus recuerdos.</p>
+        </div>
+    </div>
+
+    <div class="row mb-5 bg-light p-4 p-md-5 rounded">
+        <div class="col-md-6">
+            <h2 class="h3">Misión</h2>
+            <p>Nuestra misión es proporcionar un ambiente de confort, lujo y atención personalizada que supere las expectativas de nuestros huéspedes en cada visita. Nos esforzamos por crear experiencias memorables a través de un servicio excepcional, instalaciones de primera clase y una genuina calidez humana.</p>
+        </div>
+        <div class="col-md-6">
+            <h2 class="h3">Visión</h2>
+            <p>Ser reconocidos como el hotel líder en [Ciudad/Región], destacando por nuestra innovación en servicios, nuestro compromiso con la sostenibilidad y por ser el destino preferido tanto para viajeros locales como internacionales que buscan una estancia excepcional y enriquecedora.</p>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <h2 class="h3 mb-4">Nuestro Equipo</h2>
+        <p class="mb-4">Contamos con un equipo de profesionales apasionados por la hospitalidad, dedicados a hacer de tu estancia una experiencia perfecta. Desde la recepción hasta el servicio de habitaciones, cada miembro de nuestro personal está comprometido con tu bienestar.</p>
+        {# Podrías añadir fotos del equipo o testimonios aquí si lo deseas #}
+        <a href="{% url 'core:contacto' %}" class="btn btn-primary btn-lg">Contáctanos</a>
+    </div>
+
+</div>
+{% endblock %}

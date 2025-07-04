@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Nuestros Servicios" }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">{{ page_title|default:"Nuestros Servicios" }}</h1>
+        <p class="lead text-muted">Descubre los servicios exclusivos que Hotel Premium tiene para ofrecerte.</p>
+    </div>
+
+    {% if servicios %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for servicio in servicios %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                {% if servicio.imagen %}
+                    <img src="{{ servicio.imagen.url }}" class="card-img-top" alt="{{ servicio.nombre }}" style="height: 220px; object-fit: cover;">
+                {% else %}
+                    <div class="d-flex justify-content-center align-items-center bg-light" style="height: 220px;">
+                        <i class="fas fa-concierge-bell fa-5x text-secondary"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ servicio.nombre }}</h5>
+                    <p class="card-text text-muted flex-grow-1">{{ servicio.descripcion|truncatewords:20 }}</p>
+                    {% if servicio.precio %}
+                        <p class="card-text"><strong>Precio: ${{ servicio.precio|floatformat:2 }}</strong></p>
+                    {% else %}
+                        <p class="card-text"><strong>Gratuito / Incluido</strong></p>
+                    {% endif %}
+                    <div class="mt-auto">
+                        <a href="{% url 'servicios:detalle_servicio' pk=servicio.pk %}" class="btn btn-primary">Más Información</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        Actualmente no hay servicios para mostrar. Por favor, vuelve a consultar más tarde.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Hotel Premium{% endblock %}
+
+{% block extra_head %}
+<style>
+.carousel-item img {
+    max-height: 600px; /* Ajusta la altura máxima de las imágenes del carrusel */
+    object-fit: cover; /* Asegura que la imagen cubra el espacio manteniendo la relación de aspecto */
+    width: 100%;
+}
+.room-features li {
+    padding-bottom: 0.5rem;
+}
+.thumbnail-gallery img {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
+.thumbnail-gallery img:hover, .thumbnail-gallery img.active-thumb {
+    border-color: var(--bs-primary);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if tipo_habitacion %}
+    <div class="row">
+        <!-- Columna de Imágenes (Carrusel y Miniaturas) -->
+        <div class="col-lg-7 mb-4">
+            {% if imagenes_tipo_galeria %}
+            <div id="carouselTipoHabitacion" class="carousel slide shadow-sm rounded mb-3" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for imagen in imagenes_tipo_galeria %}
+                    <button type="button" data-bs-target="#carouselTipoHabitacion" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Imagen {{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner rounded">
+                    {% for imagen in imagenes_tipo_galeria %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ imagen.imagen.url }}" class="d-block w-100" alt="{{ imagen.descripcion_imagen|default:tipo_habitacion.nombre }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if imagenes_tipo_galeria|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselTipoHabitacion" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselTipoHabitacion" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Galería de Miniaturas (Opcional, si hay muchas imágenes) -->
+            {% if imagenes_tipo_galeria|length > 1 %}
+            <div class="row gx-2 thumbnail-gallery">
+                {% for imagen in imagenes_tipo_galeria|slice:":5" %} {# Mostrar hasta 5 miniaturas #}
+                <div class="col-auto">
+                     <img src="{{ imagen.imagen.url }}" class="img-thumbnail {% if forloop.first %}active-thumb{% endif %}" alt="Miniatura {{ forloop.counter }}" style="width: 100px; height: 75px; object-fit: cover;" data-bs-target="#carouselTipoHabitacion" data-bs-slide-to="{{ forloop.counter0 }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% elif imagen_principal_tipo %} {# Si solo hay una imagen principal y no galería #}
+                 <img src="{{ imagen_principal_tipo.imagen.url }}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tipo_habitacion.nombre }}">
+            {% else %}
+                <img src="{% static 'images/default_room_detail.png' %}" class="img-fluid rounded shadow-sm mb-3" alt="Imagen no disponible">
+            {% endif %}
+        </div>
+
+        <!-- Columna de Información y Reserva -->
+        <div class="col-lg-5">
+            <h1 class="display-5 fw-bold">{{ tipo_habitacion.nombre }}</h1>
+            <p class="lead text-muted mb-4">{{ tipo_habitacion.descripcion|default:"Descripción detallada no disponible."|linebreaksbr }}</p>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fas fa-star text-warning me-2"></i>Características Principales</h5>
+                    <ul class="list-unstyled room-features">
+                        {% if capacidad_tipo %}
+                        <li><i class="fas fa-users text-primary fa-fw me-2"></i> Capacidad: <strong>Hasta {{ capacidad_tipo }} personas</strong></li>
+                        {% endif %}
+                        {% if precio_desde_tipo %}
+                        <li><i class="fas fa-dollar-sign text-primary fa-fw me-2"></i> Precio por noche desde: <strong class="fs-5">${{ precio_desde_tipo|floatformat:2 }}</strong></li>
+                        {% endif %}
+                        {# Aquí puedes añadir más características si las tienes en el modelo TipoHabitacion #}
+                        {# Ejemplo: #}
+                        {# {% for comodidad in tipo_habitacion.comodidades.all %} #}
+                        {# <li><i class="fas fa-check text-success fa-fw me-2"></i> {{ comodidad.nombre }}</li> #}
+                        {# {% endfor %} #}
+                        <li><i class="fas fa-wifi text-primary fa-fw me-2"></i> Wi-Fi de alta velocidad</li>
+                        <li><i class="fas fa-tv text-primary fa-fw me-2"></i> TV de pantalla plana</li>
+                        <li><i class="fas fa-air-conditioner text-primary fa-fw me-2"></i> Aire acondicionado</li>
+                        <li><i class="fas fa-bath text-primary fa-fw me-2"></i> Baño privado completo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'reservas:crear_reserva' %}?tipo_habitacion={{ tipo_habitacion.pk }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-calendar-check me-2"></i>Reservar este Tipo de Habitación
+                </a>
+                <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Ver todos los tipos de habitación
+                </a>
+            </div>
+
+            {% if not habitaciones_del_tipo %}
+            <div class="alert alert-warning mt-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>Actualmente no hay habitaciones específicas de este tipo listadas o disponibles para reserva inmediata online. Por favor, contacta con nosotros para más información.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sección de Habitaciones Específicas de este Tipo (Opcional, si se quiere listar) -->
+    {% if habitaciones_del_tipo|length > 0 and False %} {# Desactivado por defecto para no duplicar info, pero útil para depurar #}
+    <div class="mt-5 pt-4 border-top">
+        <h3 class="mb-3">Habitaciones Específicas de este Tipo ({{ habitaciones_del_tipo|length }})</h3>
+        <div class="list-group">
+            {% for habitacion in habitaciones_del_tipo %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Habitación {{ habitacion.numero_habitacion }}</h5>
+                    <small class="text-muted">Capacidad: {{ habitacion.capacidad }}</small>
+                </div>
+                <p class="mb-1 small">{{ habitacion.descripcion_adicional|truncatewords:20|default:"Detalles adicionales no especificados." }}</p>
+                <small class="text-success fw-bold">Precio: ${{ habitacion.precio_por_noche|floatformat:2 }} por noche</small>
+                 <a href="{% url 'reservas:crear_reserva' %}?habitacion={{ habitacion.pk }}" class="btn btn-sm btn-outline-primary float-end">Reservar esta habitación</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-danger text-center" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>No Encontrado</h4>
+        <p>El tipo de habitación solicitado no se encontró o no está disponible actualmente.</p>
+        <hr>
+        <p class="mb-0">Por favor, <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="alert-link">vuelve a la lista de tipos de habitación</a> o <a href="{% url 'core:contacto' %}" class="alert-link">contacta con nosotros</a> para más asistencia.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if imagenes_tipo_galeria|length > 1 %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const carouselElement = document.getElementById('carouselTipoHabitacion');
+    const carousel = new bootstrap.Carousel(carouselElement);
+
+    const thumbnails = document.querySelectorAll('.thumbnail-gallery img');
+    thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', function () {
+            // Remover clase 'active-thumb' de todas las miniaturas
+            thumbnails.forEach(t => t.classList.remove('active-thumb'));
+            // Añadir clase 'active-thumb' a la miniatura clickeada
+            this.classList.add('active-thumb');
+            // El data-bs-slide-to ya maneja el cambio en el carrusel
+        });
+    });
+
+    // Sincronizar miniatura activa con el slide del carrusel
+    carouselElement.addEventListener('slid.bs.carousel', function (event) {
+        thumbnails.forEach(t => t.classList.remove('active-thumb'));
+        const activeThumb = document.querySelector(`.thumbnail-gallery img[data-bs-slide-to="${event.to}"]`);
+        if (activeThumb) {
+            activeThumb.classList.add('active-thumb');
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

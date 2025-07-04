@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Galería" }} - Hotel Premium{% endblock %}
+
+{% block extra_head %}
+{# CSS Adicional para Lightbox (ejemplo con Bootstrap 5 Lightbox) #}
+{# Si usas una librería JS para el lightbox, incluye su CSS aquí si es necesario #}
+<style>
+.gallery-img {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.gallery-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+}
+/* Estilos para el modal si no usas una librería externa */
+.modal-lg-custom {
+    max-width: 80%; /* O el tamaño que prefieras */
+}
+.modal-img {
+    max-height: 80vh; /* Ajusta la altura máxima de la imagen en el modal */
+    object-fit: contain; /* Asegura que toda la imagen sea visible */
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">{{ page_title|default:"Galería de Imágenes" }}</h1>
+        <p class="lead text-muted">Explora la belleza y el confort de Hotel Premium a través de nuestras imágenes.</p>
+    </div>
+
+    {# Aquí puedes obtener las imágenes del contexto, por ejemplo `imagenes_galeria` #}
+    {# Este es un ejemplo con imágenes estáticas. Deberías pasar las imágenes desde tu vista. #}
+    {# {% if imagenes_galeria %} #}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for i in "12345678"|make_list %} {# Simulación de 8 imágenes #}
+        {% with image_index=forloop.counter %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/galeria/hotel_image_'|add:image_index|add:'.jpg' %}"
+                     class="card-img-top gallery-img"
+                     alt="Imagen de Galería {{ image_index }}"
+                     style="height: 200px; object-fit: cover;"
+                     data-bs-toggle="modal"
+                     data-bs-target="#imageModal"
+                     data-bs-imgsrc="{% static 'images/galeria/hotel_image_'|add:image_index|add:'.jpg' %}">
+                {# Reemplaza 'images/galeria/hotel_image_X.jpg' con tus imágenes reales #}
+                {# en static/images/galeria/ #}
+                <div class="card-body text-center d-none"> {# Opcional: título o descripción breve #}
+                    <p class="card-text small text-muted">Descripción de Imagen {{ image_index }}</p>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {# {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        No hay imágenes en la galería en este momento.
+    </div>
+    {% endif %} #}
+
+    <!-- Modal para Lightbox -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg-custom">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-header border-0">
+                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img src="" class="img-fluid rounded modal-img" id="modalImage" alt="Imagen Ampliada">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var imageModal = document.getElementById('imageModal');
+    var modalImage = document.getElementById('modalImage');
+
+    imageModal.addEventListener('show.bs.modal', function (event) {
+        // Botón que activó el modal
+        var button = event.relatedTarget;
+        // Extraer información de los atributos data-bs-*
+        var imgSrc = button.getAttribute('data-bs-imgsrc');
+
+        // Actualizar el contenido del modal.
+        modalImage.src = imgSrc;
+        // modalImage.alt = button.alt; // Si quieres pasar el alt también
+    });
+
+    // Opcional: limpiar la imagen cuando el modal se cierra para evitar que se muestre la anterior brevemente
+    imageModal.addEventListener('hidden.bs.modal', function () {
+        modalImage.src = "";
+    });
+});
+</script>
+{% endblock %}

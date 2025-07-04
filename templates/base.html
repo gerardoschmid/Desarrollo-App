@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:"es" }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ page_title|default:"Hotel Premium" }}{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome (opcional, para iconos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Estilos personalizados (opcional) -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/custom_styles.css' %}"> {# Crea este archivo en static/css/ si lo necesitas #}
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="{% url 'core:inicio' %}">
+                    <i class="fas fa-hotel"></i> Hotel Premium
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'core:inicio' %}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.app_name == 'habitaciones' and request.resolver_match.url_name == 'lista_tipos_habitacion' %}active{% endif %}" href="{% url 'habitaciones:lista_tipos_habitacion' %}">Habitaciones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.app_name == 'servicios' and request.resolver_match.url_name == 'lista_servicios' %}active{% endif %}" href="{% url 'servicios:lista_servicios' %}">Servicios</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'galeria' %}active{% endif %}" href="{% url 'core:galeria' %}">Galería</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'sobre_nosotros' %}active{% endif %}" href="{% url 'core:sobre_nosotros' %}">Sobre Nosotros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'contacto' %}active{% endif %}" href="{% url 'core:contacto' %}">Contacto</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-warning text-dark ms-2 {% if request.resolver_match.app_name == 'reservas' and request.resolver_match.url_name == 'crear_reserva' %}active{% endif %}" href="{% url 'reservas:crear_reserva' %}">¡Reserva Ahora!</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i> {{ user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUser">
+                                    {% if user.is_staff %}
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'reservas:admin_lista_reservas' %}">Gestionar Reservas</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    <!-- <li><a class="dropdown-item" href="#">Mi Perfil</a></li> -->
+                                    <!-- <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li> -->
+                                </ul>
+                            </li>
+                        {% else %}
+                            <!-- <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                            </li> -->
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-4 mb-5">
+        {% if messages %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block content %}
+        <!-- El contenido específico de cada página irá aquí -->
+        {% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white text-center p-4 mt-auto">
+        <div class="container">
+            <p>&copy; {% now "Y" %} Hotel Premium. Todos los derechos reservados.</p>
+            <p>
+                <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+            </p>
+            <!-- Aquí podrías añadir sitemap, políticas de privacidad, etc. -->
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

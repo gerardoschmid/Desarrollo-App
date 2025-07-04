@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Realizar Reserva" }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0">{{ form_title|default:"Formulario de Reserva" }}</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {# Mostrar errores generales del formulario #}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {# Renderizar campos del formulario. Se puede personalizar más. #}
+                        {# Ejemplo de renderizado manual básico con Bootstrap #}
+
+                        {% if form.fecha_entrada %}
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_entrada.id_for_label }}" class="form-label">{{ form.fecha_entrada.label }}</label>
+                            {{ form.fecha_entrada }}
+                            {% if form.fecha_entrada.help_text %}<small class="form-text text-muted">{{ form.fecha_entrada.help_text }}</small>{% endif %}
+                            {% if form.fecha_entrada.errors %}<div class="invalid-feedback d-block">{{ form.fecha_entrada.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.fecha_salida %}
+                        <div class="mb-3">
+                            <label for="{{ form.fecha_salida.id_for_label }}" class="form-label">{{ form.fecha_salida.label }}</label>
+                            {{ form.fecha_salida }}
+                            {% if form.fecha_salida.help_text %}<small class="form-text text-muted">{{ form.fecha_salida.help_text }}</small>{% endif %}
+                            {% if form.fecha_salida.errors %}<div class="invalid-feedback d-block">{{ form.fecha_salida.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if form.habitacion %}
+                        <div class="mb-3">
+                            <label for="{{ form.habitacion.id_for_label }}" class="form-label">{{ form.habitacion.label }}</label>
+                            {{ form.habitacion }}
+                            {% if form.habitacion.help_text %}<small class="form-text text-muted">{{ form.habitacion.help_text }}</small>{% endif %}
+                            {% if form.habitacion.errors %}<div class="invalid-feedback d-block">{{ form.habitacion.errors|join:", " }}</div>{% endif %}
+                            {# Sugerencia: Podrías tener un selector de habitación más amigable o pre-llenar esto #}
+                            {# si el usuario viene de una página de detalle de habitación. #}
+                            {# Ejemplo: si habitacion_seleccionada_id está en el contexto: #}
+                            {# <input type="hidden" name="habitacion" value="{{ habitacion_seleccionada_id }}"> #}
+                            {# <p>Habitación seleccionada: <strong>{{ nombre_habitacion_seleccionada }}</strong></p> #}
+                        </div>
+                        {% endif %}
+
+                        {% if form.numero_huespedes %}
+                        <div class="mb-3">
+                            <label for="{{ form.numero_huespedes.id_for_label }}" class="form-label">{{ form.numero_huespedes.label }}</label>
+                            {{ form.numero_huespedes }}
+                            {% if form.numero_huespedes.help_text %}<small class="form-text text-muted">{{ form.numero_huespedes.help_text }}</small>{% endif %}
+                            {% if form.numero_huespedes.errors %}<div class="invalid-feedback d-block">{{ form.numero_huespedes.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {# Campos de Cliente - Podrían estar en una sección separada o condicional #}
+                        {# Si el usuario no está logueado, o si es un admin creando para un nuevo cliente #}
+                        {% if form.cliente %} {# Si es un Select para admin #}
+                        <div class="mb-3">
+                            <label for="{{ form.cliente.id_for_label }}" class="form-label">{{ form.cliente.label }}</label>
+                            {{ form.cliente }}
+                            {% if form.cliente.help_text %}<small class="form-text text-muted">{{ form.cliente.help_text }}</small>{% endif %}
+                            {% if form.cliente.errors %}<div class="invalid-feedback d-block">{{ form.cliente.errors|join:", " }}</div>{% endif %}
+                            <small class="form-text text-muted">Si el cliente no existe, <a href="{% url 'clientes:admin_crear_cliente' %}?next={{ request.path }}">regístralo aquí primero</a>.</small>
+                        </div>
+                        {% elif not user.is_authenticated and form.nombre_cliente_nuevo %} {# Campos para cliente nuevo (público) #}
+                            <h5 class="mt-4 mb-3">Sus Datos de Contacto</h5>
+                            <div class="mb-3">
+                                <label for="{{ form.nombre_cliente_nuevo.id_for_label }}" class="form-label">{{ form.nombre_cliente_nuevo.label }}</label>
+                                {{ form.nombre_cliente_nuevo }}
+                                {% if form.nombre_cliente_nuevo.errors %}<div class="invalid-feedback d-block">{{ form.nombre_cliente_nuevo.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.email_cliente_nuevo.id_for_label }}" class="form-label">{{ form.email_cliente_nuevo.label }}</label>
+                                {{ form.email_cliente_nuevo }}
+                                {% if form.email_cliente_nuevo.errors %}<div class="invalid-feedback d-block">{{ form.email_cliente_nuevo.errors|join:", " }}</div>{% endif %}
+                            </div>
+                             <div class="mb-3">
+                                <label for="{{ form.telefono_cliente_nuevo.id_for_label }}" class="form-label">{{ form.telefono_cliente_nuevo.label }}</label>
+                                {{ form.telefono_cliente_nuevo }}
+                                {% if form.telefono_cliente_nuevo.errors %}<div class="invalid-feedback d-block">{{ form.telefono_cliente_nuevo.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        {% endif %}
+
+
+                        {% if form.notas_adicionales %}
+                        <div class="mb-3">
+                            <label for="{{ form.notas_adicionales.id_for_label }}" class="form-label">{{ form.notas_adicionales.label }}</label>
+                            {{ form.notas_adicionales }}
+                            {% if form.notas_adicionales.help_text %}<small class="form-text text-muted">{{ form.notas_adicionales.help_text }}</small>{% endif %}
+                            {% if form.notas_adicionales.errors %}<div class="invalid-feedback d-block">{{ form.notas_adicionales.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {# Campos solo para Admin (estado, costo_total) #}
+                        {% if user.is_staff %}
+                            {% if form.estado %}
+                            <div class="mb-3">
+                                <label for="{{ form.estado.id_for_label }}" class="form-label">{{ form.estado.label }}</label>
+                                {{ form.estado }}
+                                {% if form.estado.errors %}<div class="invalid-feedback d-block">{{ form.estado.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+                            {% if form.costo_total %}
+                            <div class="mb-3">
+                                <label for="{{ form.costo_total.id_for_label }}" class="form-label">{{ form.costo_total.label }}</label>
+                                {{ form.costo_total }}
+                                {% if form.costo_total.help_text %}<small class="form-text text-muted">{{ form.costo_total.help_text }}</small>{% endif %}
+                                {% if form.costo_total.errors %}<div class="invalid-feedback d-block">{{ form.costo_total.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <hr>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check-circle me-2"></i>{{ submit_button_text|default:"Enviar Solicitud" }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center text-muted">
+                    <small>Nos pondremos en contacto para confirmar su reserva.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Script para inicializar selectores de fecha si es necesario (ej. datepicker) #}
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('form');
+    const tipoHabitacionField = document.getElementById('{{ form.tipo_habitacion.id_for_label }}');
+    const fechaEntradaField = document.getElementById('{{ form.fecha_entrada.id_for_label }}');
+    const fechaSalidaField = document.getElementById('{{ form.fecha_salida.id_for_label }}');
+    const adultosField = document.getElementById('{{ form.numero_adultos.id_for_label }}');
+    const ninosField = document.getElementById('{{ form.numero_ninos.id_for_label }}');
+    const disponibilidadResultDiv = document.createElement('div');
+    disponibilidadResultDiv.setAttribute('id', 'disponibilidad-mensaje');
+    disponibilidadResultDiv.setAttribute('class', 'mt-3');
+    // Insertar el div de mensaje después del campo tipo_habitacion o un campo relevante
+    if (tipoHabitacionField && tipoHabitacionField.parentNode) {
+        tipoHabitacionField.parentNode.insertBefore(disponibilidadResultDiv, tipoHabitacionField.nextSibling.nextSibling); // Ajustar según estructura del DOM
+    }
+
+
+    const checkAvailability = async () => {
+        const tipoHabitacionId = tipoHabitacionField.value;
+        const fechaEntrada = fechaEntradaField.value;
+        const fechaSalida = fechaSalidaField.value;
+        const numeroAdultos = adultosField.value;
+        const numeroNinos = ninosField.value;
+
+        if (!tipoHabitacionId || !fechaEntrada || !fechaSalida || !numeroAdultos) {
+            disponibilidadResultDiv.innerHTML = ''; // Limpiar si faltan datos clave
+            return;
+        }
+
+        // Validar fechas básicas en JS para feedback rápido
+        if (new Date(fechaSalida) <= new Date(fechaEntrada)) {
+            disponibilidadResultDiv.innerHTML = `<div class="alert alert-warning" role="alert">La fecha de salida debe ser posterior a la de entrada.</div>`;
+            return;
+        }
+        if (new Date(fechaEntrada) < new Date(new Date().setHours(0,0,0,0)) &&
+            new Date(fechaEntrada).toDateString() !== new Date(new Date().setHours(0,0,0,0)).toDateString() ) { // No permitir fechas pasadas estrictas
+             disponibilidadResultDiv.innerHTML = `<div class="alert alert-warning" role="alert">La fecha de entrada no puede ser en el pasado.</div>`;
+            return;
+        }
+
+
+        const url = `{% url 'reservas:api_verificar_disponibilidad' %}?tipo_habitacion_id=${tipoHabitacionId}&fecha_entrada=${fechaEntrada}&fecha_salida=${fechaSalida}&numero_adultos=${numeroAdultos}&numero_ninos=${numeroNinos}`;
+
+        try {
+            disponibilidadResultDiv.innerHTML = `<div class="text-muted"><i class="fas fa-spinner fa-spin"></i> Verificando disponibilidad...</div>`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.disponible) {
+                    disponibilidadResultDiv.innerHTML = `<div class="alert alert-success" role="alert"><i class="fas fa-check-circle"></i> ${data.mensaje || 'Disponible'}</div>`;
+                } else {
+                    disponibilidadResultDiv.innerHTML = `<div class="alert alert-danger" role="alert"><i class="fas fa-times-circle"></i> ${data.mensaje || 'No disponible'}</div>`;
+                }
+            } else {
+                 disponibilidadResultDiv.innerHTML = `<div class="alert alert-danger" role="alert">${data.error || 'Error al verificar disponibilidad.'}</div>`;
+            }
+        } catch (error) {
+            console.error('Error en AJAX:', error);
+            disponibilidadResultDiv.innerHTML = `<div class="alert alert-danger" role="alert">Error de conexión al verificar disponibilidad.</div>`;
+        }
+    };
+
+    // Event listeners
+    if (tipoHabitacionField) tipoHabitacionField.addEventListener('change', checkAvailability);
+    if (fechaEntradaField) fechaEntradaField.addEventListener('change', checkAvailability);
+    if (fechaSalidaField) fechaSalidaField.addEventListener('change', checkAvailability);
+    if (adultosField) adultosField.addEventListener('change', checkAvailability);
+    if (ninosField) ninosField.addEventListener('change', checkAvailability);
+
+    // Verificar al cargar la página si los campos ya tienen valores (ej. si el form es re-renderizado con errores)
+    // o si vienen valores iniciales de la URL
+    if (tipoHabitacionField.value && fechaEntradaField.value && fechaSalidaField.value) {
+       // checkAvailability(); // Podrías llamarlo, pero puede ser mucho al cargar. Mejor que el usuario interactúe primero.
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %}
+
+{# Nota: Para que los campos del formulario se rendericen bien con Bootstrap, #}
+{# podrías usar django-crispy-forms o un widget personalizado, o añadir #}
+{# la clase 'form-control' a cada input/select/textarea en el forms.py o aquí. #}
+{# Ejemplo de cómo añadir 'form-control' en el forms.py: #}
+{# class MiFormulario(forms.ModelForm): #}
+{#     def __init__(self, *args, **kwargs): #}
+{#         super().__init__(*args, **kwargs) #}
+{#         for field_name, field in self.fields.items(): #}
+{#             field.widget.attrs['class'] = 'form-control' # }
+{#             if isinstance(field.widget, forms.CheckboxInput): # }
+{#                 field.widget.attrs['class'] = 'form-check-input' # }
+
+{# Para este ejemplo, asumimos que los widgets de Django se adaptarán o que #}
+{# añadirás las clases manualmente o mediante un filtro de template si es necesario. #}
+{# El código de arriba renderiza los campos de forma básica. #}
+{# Para una mejor integración con Bootstrap, considera usar {{ form.as_p }}, #}
+{# {{ form.as_table }}, {{ form.as_ul }} o iterar sobre los campos: #}
+{# {% for field in form %}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+    </div>
+{% endfor %} #}

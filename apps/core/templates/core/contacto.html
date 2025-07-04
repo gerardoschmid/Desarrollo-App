@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Contacto" }} - Hotel Premium{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">{{ page_title|default:"Contáctanos" }}</h1>
+        <p class="lead text-muted">Estamos aquí para ayudarte. Envíanos un mensaje o encuéntranos.</p>
+    </div>
+
+    <div class="row">
+        <!-- Formulario de Contacto -->
+        <div class="col-lg-7 mb-5 mb-lg-0">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0"><i class="fas fa-envelope me-2"></i>Envíanos un Mensaje</h2>
+                </div>
+                <div class="card-body p-4">
+                    {# Asumiendo que tienes un ContactoForm en el contexto de la vista ContactoPageView #}
+                    {# Si no, tendrás que crear los campos HTML manualmente o usar un snippet #}
+                    <form method="POST" action=""> {# Dejar action vacío para que envíe a la misma URL o especificar 'core:enviar_contacto' si tienes una URL dedicada #}
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {# Renderizado manual básico de campos si 'form' está en el contexto #}
+                        {# Si no, puedes crear los campos directamente aquí #}
+                        {% if form %}
+                            <div class="mb-3">
+                                <label for="{{ form.nombre.id_for_label|default:'contact_nombre' }}" class="form-label">{{ form.nombre.label|default:"Nombre Completo" }}</label>
+                                {{ form.nombre }} {# Asume que el widget tiene class="form-control" #}
+                                {% if form.nombre.errors %}<div class="invalid-feedback d-block">{{ form.nombre.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label|default:'contact_email' }}" class="form-label">{{ form.email.label|default:"Correo Electrónico" }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.asunto.id_for_label|default:'contact_asunto' }}" class="form-label">{{ form.asunto.label|default:"Asunto" }}</label>
+                                {{ form.asunto }}
+                                {% if form.asunto.errors %}<div class="invalid-feedback d-block">{{ form.asunto.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.mensaje.id_for_label|default:'contact_mensaje' }}" class="form-label">{{ form.mensaje.label|default:"Mensaje" }}</label>
+                                {{ form.mensaje }} {# Asume que el widget tiene class="form-control" y rows="5" #}
+                                {% if form.mensaje.errors %}<div class="invalid-feedback d-block">{{ form.mensaje.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        {% else %}
+                        {# Campos HTML si no hay form de Django #}
+                        <div class="mb-3">
+                            <label for="contact_nombre" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="contact_nombre" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="contact_email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_asunto" class="form-label">Asunto</label>
+                            <input type="text" class="form-control" id="contact_asunto" name="asunto">
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_mensaje" class="form-label">Mensaje</label>
+                            <textarea class="form-control" id="contact_mensaje" name="mensaje" rows="5" required></textarea>
+                        </div>
+                        {% endif %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Enviar Mensaje</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de Contacto y Mapa -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="h5 card-title"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Dirección</h3>
+                    <p class="card-text">
+                        Calle Ficticia 123, Colonia Centro<br>
+                        Ciudad Ejemplo, CP 00000<br>
+                        País Imaginario
+                    </p>
+                </div>
+            </div>
+            <div class="card shadow-sm mb-4">
+                 <div class="card-body">
+                    <h3 class="h5 card-title"><i class="fas fa-phone me-2 text-primary"></i>Teléfonos</h3>
+                    <p class="card-text">
+                        <strong>Reservas:</strong> +01 234 567 8900<br>
+                        <strong>Recepción:</strong> +01 234 567 8901
+                    </p>
+                </div>
+            </div>
+             <div class="card shadow-sm">
+                 <div class="card-body">
+                    <h3 class="h5 card-title"><i class="fas fa-envelope-open-text me-2 text-primary"></i>Email</h3>
+                    <p class="card-text">
+                        <strong>General:</strong> info@hotelpremium.example<br>
+                        <strong>Reservas:</strong> reservas@hotelpremium.example
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mapa de Google (Placeholder) -->
+            <div class="mt-4">
+                <h3 class="h5 mb-3">Nuestra Ubicación</h3>
+                {# Para un mapa real, reemplaza esto con el código de inserción de Google Maps #}
+                {# Asegúrate de que sea responsive, por ejemplo, usando clases de Bootstrap o CSS #}
+                <div class="ratio ratio-16x9 rounded shadow">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.086436026847!2d-122.419415584681!3d37.77492927975901!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085808c1c0e4f7b%3A0x4f2f7d3e9d1a1e7b!2sSan%20Francisco%20City%20Hall!5e0!3m2!1ses!2ses!4v1678886400000!5m2!1ses!2ses"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Si tienes una página de 'contacto_enviado' y quieres mostrar un mensaje temporal aquí #}
+{# {% if mensaje_enviado %}
+<div class="modal fade" id="mensajeEnviadoModal" tabindex="-1" aria-labelledby="mensajeEnviadoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mensajeEnviadoModalLabel">¡Mensaje Enviado!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Gracias por contactarnos. Hemos recibido tu mensaje y te responderemos pronto.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% block extra_scripts %}
+<script>
+    var mensajeEnviadoModal = new bootstrap.Modal(document.getElementById('mensajeEnviadoModal'));
+    mensajeEnviadoModal.show();
+</script>
+{% endblock %}
+{% endif %} #}
+
+{% endblock %}
