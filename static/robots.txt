@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /gestion/ # Asumiendo que las URLs de gestión usan este prefijo
+Disallow: /api/ # Si tienes APIs que no quieres que se indexen
+
+# Allow
+Allow: /
+
+# Sitemap (actualiza con tu dominio real cuando despliegues)
+Sitemap: https://www.example.com/sitemap.xml

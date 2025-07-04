@@ -14,6 +14,10 @@ class TipoHabitacion(models.Model):
     def __str__(self):
         return self.nombre
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('habitaciones:detalle_tipo_habitacion', kwargs={'pk': self.pk})
+
 class Habitacion(models.Model):
     numero_habitacion = models.CharField(_("Número de Habitación"), max_length=10, unique=True)
     tipo_habitacion = models.ForeignKey(TipoHabitacion, on_delete=models.PROTECT, verbose_name=_("Tipo de Habitación"))

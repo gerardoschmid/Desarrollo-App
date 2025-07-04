@@ -18,3 +18,7 @@ class Servicio(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('servicios:detalle_servicio', kwargs={'pk': self.pk})
