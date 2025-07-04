@@ -1,0 +1,93 @@
+{% load static %}
+<footer class="bg-dark text-white pt-5 pb-4">
+    <div class="container text-center text-md-start">
+        <div class="row gy-4">
+
+            <div class="col-lg-4 col-md-6">
+                <h5 class="text-uppercase mb-4 fw-bold text-warning">
+                    {% if config.logo %}
+                        <img src="{{ config.logo.url }}" alt="{{ config.nombre_hotel|default:'Hotel Premium MVP' }} Logo" height="30" class="d-inline-block align-text-bottom me-2">
+                    {% endif %}
+                    {{ config.nombre_hotel|default:"Hotel Premium MVP" }}
+                </h5>
+                <p class="small">
+                    {{ config.descripcion_corta_meta|truncatewords:30|default:"Disfrute de una estancia inolvidable con nosotros. Comodidad, servicio de primera y la mejor ubicación para sus vacaciones o viaje de negocios." }}
+                </p>
+                {% if config.direccion %}
+                <p class="small"><i class="fas fa-map-marker-alt me-2"></i>{{ config.direccion|linebreaksbr }}</p>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h5 class="text-uppercase mb-4 fw-bold text-warning">Hotel</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'core:index' %}" class="text-white text-decoration-none footer-link">Inicio</a></li>
+                    <li class="mb-2"><a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="text-white text-decoration-none footer-link">Habitaciones</a></li>
+                    <li class="mb-2"><a href="{% url 'servicios:lista_servicios' %}" class="text-white text-decoration-none footer-link">Servicios</a></li>
+                    <li class="mb-2"><a href="{% url 'core:gallery' %}" class="text-white text-decoration-none footer-link">Galería</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="text-uppercase mb-4 fw-bold text-warning">Soporte</h5>
+                 <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'core:about' %}" class="text-white text-decoration-none footer-link">Sobre Nosotros</a></li>
+                    <li class="mb-2"><a href="{% url 'core:contact' %}" class="text-white text-decoration-none footer-link">Contacto</a></li>
+                    <li class="mb-2"><a href="{% url 'reservas:crear_reserva' %}" class="text-white text-decoration-none footer-link">Reservar Ahora</a></li>
+                    <li class="mb-2"><a href="#" class="text-white text-decoration-none footer-link">FAQs</a></li>
+                    <!-- Reemplazar # con URL real si tienes FAQs -->
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h5 class="text-uppercase mb-4 fw-bold text-warning">Contacto Directo</h5>
+                {% if config.email_contacto %}
+                <p class="small"><i class="fas fa-envelope me-2"></i><a href="mailto:{{ config.email_contacto }}" class="text-white text-decoration-none footer-link">{{ config.email_contacto }}</a></p>
+                {% endif %}
+                {% if config.telefono_contacto %}
+                <p class="small"><i class="fas fa-phone me-2"></i><a href="tel:{{ config.telefono_contacto }}" class="text-white text-decoration-none footer-link">{{ config.telefono_contacto }}</a></p>
+                {% endif %}
+
+                <div class="mt-3">
+                    {% if config.facebook_url %}
+                    <a href="{{ config.facebook_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-floating m-1" role="button" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    {% endif %}
+                    {% if config.instagram_url %}
+                    <a href="{{ config.instagram_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-floating m-1" role="button" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    {% endif %}
+                    {% if config.twitter_url %}
+                    <a href="{{ config.twitter_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-floating m-1" role="button" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row align-items-center">
+            <div class="col-md-7 col-lg-8">
+                <p class="text-center text-md-start small mb-0">
+                    &copy; {% now "Y" %} {{ config.nombre_hotel|default:"Hotel Premium MVP" }}. Todos los derechos reservados.
+                </p>
+                 <p class="text-center text-md-start small">
+                    <a href="#" class="text-white text-decoration-none footer-link-sm">Política de Privacidad</a> |
+                    <a href="#" class="text-white text-decoration-none footer-link-sm">Términos de Servicio</a> |
+                    <a href="{% url 'django.contrib.sitemaps.views.sitemap' %}" class="text-white text-decoration-none footer-link-sm">Mapa del Sitio</a>
+                </p>
+            </div>
+            <div class="col-md-5 col-lg-4">
+                <p class="text-center text-md-end small mb-0">
+                    Diseñado con <i class="fas fa-heart text-danger"></i> por [Tu Nombre/Empresa Aquí]
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.footer-link:hover, .footer-link-sm:hover {
+    color: #ffc107 !important; /* Amarillo Bootstrap warning */
+    /* text-decoration: underline !important; */
+}
+</style>
+```

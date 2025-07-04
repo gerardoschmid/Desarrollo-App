@@ -1,10 +1,30 @@
+# Contenido de static/robots.txt
+# Este archivo será servido por TemplateView, permitiendo el uso de variables de Django.
+# Ver hotel_project/urls.py y hotel_project/settings.py (SITE_ID)
+
 User-agent: *
 Disallow: /admin/
-Disallow: /gestion/ # Asumiendo que las URLs de gestión usan este prefijo
-Disallow: /api/ # Si tienes APIs que no quieres que se indexen
+Disallow: /media/
+Disallow: /static/ # Aunque los crawlers inteligentes pueden ignorar esto para CSS/JS necesarios para renderizar
+Disallow: /accounts/ # Si usas django.contrib.auth.urls y no quieres indexar login, etc.
+Disallow: /api/ # Si tuvieras una API que no quieres que se indexe
+Disallow: /search/ # Si tienes resultados de búsqueda que no aportan valor SEO único
+Disallow: /*?* # Bloquear URLs con parámetros si no son canónicas o generan contenido duplicado
 
-# Allow
-Allow: /
+# Permitir explícitamente el acceso a archivos importantes si es necesario
+# Allow: /static/css/
+# Allow: /static/js/
 
-# Sitemap (actualiza con tu dominio real cuando despliegues)
-Sitemap: https://www.example.com/sitemap.xml
+# Especificar la ubicación del sitemap.
+# La sintaxis {{ request.scheme }}://{{ request.get_host }} será renderizada por Django.
+# Si sirves este archivo estáticamente en producción sin Django, reemplaza con la URL completa.
+Sitemap: {% if request %}{{ request.scheme }}://{{ request.get_host }}{% url 'django.contrib.sitemaps.views.sitemap' %}{% else %}https://www.example.com/sitemap.xml{% endif %}
+
+# Ejemplo para Googlebot si necesitas reglas específicas:
+# User-agent: Googlebot
+# Disallow: /private-for-google/
+# Allow: /public-for-google/
+
+# Ejemplo para Bingbot:
+# User-agent: Bingbot
+# Crawl-delay: 10 # Segundos entre peticiones

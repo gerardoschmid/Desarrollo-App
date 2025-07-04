@@ -1,0 +1,140 @@
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fechaLlegadaInput = document.getElementById('{{ form.fecha_llegada.id_for_label }}');
+    const fechaSalidaInput = document.getElementById('{{ form.fecha_salida.id_for_label }}');
+    const tipoHabitacionSelect = document.getElementById('{{ form.tipo_habitacion_solicitada.id_for_label }}');
+    const adultosInput = document.getElementById('{{ form.numero_huespedes_adultos.id_for_label }}');
+    const ninosInput = document.getElementById('{{ form.numero_huespedes_ninos.id_for_label }}');
+
+    const availabilityMessageDiv = document.getElementById('availabilityMessage');
+    const resumenReservaDiv = document.getElementById('resumenReserva');
+    const nochesEstadiaSpan = document.getElementById('nochesEstadia');
+    const precioEstimadoSpan = document.getElementById('precioEstimado');
+    const submitReservaBtn = document.getElementById('submitReservaBtn');
+
+    let debounceTimer;
+
+    function updateFechaSalidaMin() {
+        if (fechaLlegadaInput.value) {
+            let llegadaDate = new Date(fechaLlegadaInput.value + 'T00:00:00Z'); // Usar Z para UTC y evitar problemas de zona horaria en el cálculo
+            if (!isNaN(llegadaDate.getTime())) {
+                llegadaDate.setDate(llegadaDate.getDate() + 1); // Salida debe ser al menos un día después
+                fechaSalidaInput.min = llegadaDate.toISOString().split('T')[0];
+
+                // Si la fecha de salida actual es anterior a la nueva mínima, limpiarla o ajustarla
+                if (fechaSalidaInput.value && new Date(fechaSalidaInput.value + 'T00:00:00Z') < llegadaDate) {
+                    fechaSalidaInput.value = '';
+                    // Forzar la re-verificación de disponibilidad si se limpia la fecha de salida
+                    checkAvailability();
+                }
+            }
+        } else {
+            // Si no hay fecha de llegada, quitar el mínimo para no bloquear, o poner un mínimo por defecto
+            let todayPlusOne = new Date();
+            todayPlusOne.setDate(todayPlusOne.getDate() + 1);
+            fechaSalidaInput.min = todayPlusOne.toISOString().split('T')[0];
+        }
+    }
+
+    // Configurar mínimo para fecha de llegada (hoy)
+    let today = new Date();
+    fechaLlegadaInput.min = today.toISOString().split('T')[0];
+    updateFechaSalidaMin(); // Inicializar min de fecha de salida
+
+    // Actualizar min de fecha_salida cuando fecha_llegada cambia
+    if(fechaLlegadaInput) fechaLlegadaInput.addEventListener('change', updateFechaSalidaMin);
+
+
+    function checkAvailability() {
+        const fechaLlegada = fechaLlegadaInput ? fechaLlegadaInput.value : null;
+        const fechaSalida = fechaSalidaInput ? fechaSalidaInput.value : null;
+        const tipoHabitacionId = tipoHabitacionSelect ? tipoHabitacionSelect.value : null;
+        const adultos = adultosInput ? (adultosInput.value || 0) : 0;
+        const ninos = ninosInput ? (ninosInput.value || 0) : 0;
+
+        if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = ''; // Limpiar mensajes previos
+        if(resumenReservaDiv) resumenReservaDiv.classList.add('d-none');
+        if(nochesEstadiaSpan) nochesEstadiaSpan.textContent = '--';
+        if(precioEstimadoSpan) precioEstimadoSpan.textContent = '--';
+
+        // Deshabilitar botón de envío por defecto hasta confirmar disponibilidad (opcional, pero buena UX)
+        // if(submitReservaBtn) submitReservaBtn.disabled = true;
+
+        if (!fechaLlegada || !fechaSalida || !tipoHabitacionId) {
+            // No hacer nada si faltan campos clave para la consulta
+            // O mostrar un mensaje pidiendo completar los campos
+            if(availabilityMessageDiv && tipoHabitacionId) availabilityMessageDiv.innerHTML = '<div class="alert alert-secondary p-2">Selecciona fechas y tipo de habitación para ver disponibilidad.</div>';
+            return;
+        }
+
+        const llegadaDateObj = new Date(fechaLlegada + 'T00:00:00Z');
+        const salidaDateObj = new Date(fechaSalida + 'T00:00:00Z');
+
+        if (salidaDateObj <= llegadaDateObj) {
+            if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = '<div class="alert alert-warning p-2">La fecha de salida debe ser posterior a la fecha de llegada.</div>';
+            return;
+        }
+
+        if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = '<div class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Verificando disponibilidad y precio...</div>';
+
+        const url = `{% url 'reservas:ajax_verificar_disponibilidad' %}?fecha_llegada=${fechaLlegada}&fecha_salida=${fechaSalida}&tipo_habitacion_id=${tipoHabitacionId}&adultos=${adultos}&ninos=${ninos}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    // Podrías intentar parsear el JSON de error si el backend lo envía
+                    return response.json().then(errData => {
+                        throw new Error(errData.error || 'Error en la red o el servidor.');
+                    }).catch(() => { // Si no hay JSON en el error
+                        throw new Error('Error en la red o el servidor. Código: ' + response.status);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.disponible) {
+                    if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = `<div class="alert alert-success p-2"><i class="fas fa-check-circle me-1"></i> ${data.mensaje || '¡Disponible!'}</div>`;
+                    // if(submitReservaBtn) submitReservaBtn.disabled = false;
+                    if (data.noches && data.precio_estimado) {
+                        if(nochesEstadiaSpan) nochesEstadiaSpan.textContent = data.noches;
+                        if(precioEstimadoSpan) precioEstimadoSpan.textContent = data.precio_estimado;
+                        if(resumenReservaDiv) resumenReservaDiv.classList.remove('d-none');
+                    }
+                } else {
+                    if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = `<div class="alert alert-danger p-2"><i class="fas fa-times-circle me-1"></i> ${data.mensaje || 'No disponible para las fechas o capacidad seleccionada.'}</div>`;
+                    // if(submitReservaBtn) submitReservaBtn.disabled = true;
+                }
+            })
+            .catch(error => {
+                console.error('Error en AJAX para verificar disponibilidad:', error);
+                if(availabilityMessageDiv) availabilityMessageDiv.innerHTML = `<div class="alert alert-danger p-2">Error al verificar disponibilidad: ${error.message}. Intenta más tarde.</div>`;
+                // if(submitReservaBtn) submitReservaBtn.disabled = true;
+            });
+    }
+
+    // Función para ejecutar checkAvailability con debounce
+    function debouncedCheckAvailability() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(checkAvailability, 700); // Espera 700ms después de la última entrada
+    }
+
+    // Event listeners para los campos relevantes
+    const fieldsToListen = [fechaLlegadaInput, fechaSalidaInput, tipoHabitacionSelect, adultosInput, ninosInput];
+    fieldsToListen.forEach(element => {
+        if (element) {
+            element.addEventListener('change', debouncedCheckAvailability);
+            // Para algunos campos como select, 'input' podría ser mejor si quieres respuesta inmediata
+            // pero 'change' es más estándar.
+        }
+    });
+
+    // Llamar una vez al cargar por si hay valores iniciales (ej. desde GET en la URL)
+    // pero solo si los campos requeridos tienen valor.
+    if (fechaLlegadaInput && fechaLlegadaInput.value &&
+        fechaSalidaInput && fechaSalidaInput.value &&
+        tipoHabitacionSelect && tipoHabitacionSelect.value) {
+        checkAvailability();
+    }
+});
+</script>
+```

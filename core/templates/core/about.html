@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Sobre Nosotros{% endblock page_title %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    {% block content_title %}
+    <!-- El H1 ya está en base.html si page_title está definido y no hay hero_section -->
+    {% endblock %}
+    <p class="lead text-center mb-5 col-md-8 mx-auto">
+        Conoce la historia, la misión y los valores que definen a {{ config.nombre_hotel|default:"Hotel Premium MVP" }} y nos impulsan a ofrecerte una experiencia inolvidable.
+    </p>
+
+    <div class="row align-items-center mb-5 gy-4">
+        <div class="col-lg-6">
+            <h2 class="fw-bold display-6 mb-3">Nuestra Historia</h2>
+            <p class="text-muted">
+                Fundado en [Año de Fundación], {{ config.nombre_hotel|default:"Hotel Premium MVP" }} nació con la visión de ofrecer una experiencia de alojamiento excepcional en la ciudad de Barinas.
+                Desde nuestros inicios, nos hemos comprometido con la calidad, el confort y un servicio personalizado que haga sentir a cada huésped como en casa.
+            </p>
+            <p class="text-muted">
+                A lo largo de los años, hemos crecido y evolucionado, adaptándonos a las necesidades de nuestros visitantes y buscando siempre superar sus expectativas.
+                Creemos firmemente en la hospitalidad venezolana y nos esforzamos por reflejarla en cada detalle de nuestro servicio y en la calidez de nuestras instalaciones.
+            </p>
+             <a href="{% url 'core:gallery' %}" class="btn btn-outline-primary mt-3">
+                <i class="fas fa-images me-2"></i>Explora Nuestra Galería
+            </a>
+        </div>
+        <div class="col-lg-6">
+            <img src="{% static 'img/hotel_about_main.jpg' %}" class="img-fluid rounded shadow-lg" alt="Imagen representativa de {{ config.nombre_hotel|default:'Hotel Premium MVP' }}">
+            <!-- Reemplaza 'hotel_about_main.jpg' con una imagen real de tu hotel o un placeholder -->
+            <!-- Placeholder: <img src="https://via.placeholder.com/600x400.png?text=Nuestro+Hotel" class="img-fluid rounded shadow-lg" alt="Nuestro Hotel"> -->
+        </div>
+    </div>
+
+    <div class="row text-center my-5 py-5 bg-white rounded shadow-sm gy-4">
+        <div class="col-md-4">
+            <div class="p-3">
+                <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
+                <h4 class="fw-bold">Nuestra Misión</h4>
+                <p class="text-muted small">Proporcionar un refugio de confort y excelencia en servicio, creando experiencias memorables para todos nuestros huéspedes, ya sea que viajen por negocios o placer, contribuyendo positivamente a la comunidad local.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3">
+                <i class="fas fa-eye fa-3x text-primary mb-3"></i>
+                <h4 class="fw-bold">Nuestra Visión</h4>
+                <p class="text-muted small">Ser reconocidos como el hotel líder en Barinas y un referente de hospitalidad en Venezuela, destacando por nuestra innovación constante, calidad superior y la genuina calidez humana de nuestro equipo.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3">
+                <i class="fas fa-gem fa-3x text-primary mb-3"></i>
+                <h4 class="fw-bold">Nuestros Valores</h4>
+                <ul class="list-unstyled text-muted small">
+                    <li><i class="fas fa-check-circle text-success me-1"></i>Excelencia en el Servicio</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i>Integridad y Transparencia</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i>Compromiso con el Cliente</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i>Respeto y Diversidad</li>
+                    <li><i class="fas fa-check-circle text-success me-1"></i>Pasión por la Hospitalidad</li>
+                     <li><i class="fas fa-check-circle text-success me-1"></i>Innovación Continua</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <h2 class="text-center fw-bold mb-5 display-6">¿Por Qué Elegirnos?</h2>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-map-marked-alt fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Ubicación Estratégica</h5>
+                <p class="card-text text-muted small">Fácil acceso a los principales puntos de interés de la ciudad, centros de negocios y áreas turísticas.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                 <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-concierge-bell fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Servicio Excepcional</h5>
+                <p class="card-text text-muted small">Nuestro personal atento y profesional está siempre listo para asistirte y hacer tu estancia más placentera.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-star fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Confort Garantizado</h5>
+                <p class="card-text text-muted small">Habitaciones e instalaciones modernas y acogedoras, diseñadas para tu máximo bienestar y descanso.</p>
+            </div>
+        </div>
+         <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                <div class="feature-icon bg-danger text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-utensils fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Gastronomía Deliciosa</h5>
+                <p class="card-text text-muted small">Sabores que deleitarán tu paladar en nuestro restaurante, con opciones locales e internacionales. (Si aplica)</p>
+            </div>
+        </div>
+         <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                 <div class="feature-icon bg-secondary text-white rounded-circle mx-auto mb-3">
+                    <i class="fas fa-shield-alt fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Seguridad y Confianza</h5>
+                <p class="card-text text-muted small">Tu tranquilidad y seguridad son nuestra prioridad. Contamos con protocolos para garantizar tu bienestar.</p>
+            </div>
+        </div>
+         <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 text-center p-3 shadow-sm border-0 feature-card">
+                <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                     <i class="fas fa-thumbs-up fa-2x"></i>
+                </div>
+                <h5 class="card-title fw-semibold">Experiencia Comprobada</h5>
+                <p class="card-text text-muted small">Años de experiencia en la industria hotelera respaldan la calidad de nuestro servicio y atención al detalle.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-warning btn-lg fw-bold shadow">
+            <i class="fas fa-calendar-check me-2"></i>¡Vive la Experiencia, Reserva Ahora!
+        </a>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.feature-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+}
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}
+```

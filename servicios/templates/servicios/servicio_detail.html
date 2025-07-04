@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}{{ servicio.nombre }}{% endblock page_title %}
+{% block meta_description %}{{ servicio.descripcion_corta|default:servicio.descripcion_larga|truncatewords:25 }}{% endblock meta_description %}
+{% block no_auto_h1 %}True{% endblock %} <!-- El H1 se maneja dentro de este bloque -->
+
+{% block content_bg_class %}bg-white{% endblock %} <!-- Fondo blanco para esta página -->
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    <div class="row g-4 g-lg-5">
+        <div class="col-lg-6 text-center">
+            {% if servicio.imagen %}
+                <img src="{{ servicio.imagen.url }}" class="img-fluid rounded shadow-lg mb-3" alt="{{ servicio.nombre }}" style="max-height: 450px; object-fit: cover; width: 100%;">
+            {% elif servicio.icono_fa %}
+                <div class="p-5 bg-light-subtle rounded shadow-sm d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <i class="{{ servicio.icono_fa }} fa-7x text-primary"></i>
+                </div>
+            {% else %}
+                <div class="p-5 bg-light-subtle rounded shadow-sm d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <i class="fas fa-star fa-7x text-primary"></i> <!-- Icono por defecto -->
+                </div>
+                 <!-- Placeholder: <img src="https://via.placeholder.com/700x500.png?text={{ servicio.nombre|urlencode }}" class="img-fluid rounded shadow-lg mb-3" alt="{{ servicio.nombre }}"> -->
+            {% endif %}
+        </div>
+
+        <div class="col-lg-6">
+            <h1 class="display-5 fw-bold mb-2">{{ servicio.nombre }}</h1>
+            {% if servicio.categoria %}
+                <p class="mb-3">
+                    <a href="{% url 'servicios:lista_servicios' %}#categoria-{{ servicio.categoria.slug }}" class="badge bg-primary-subtle text-primary-emphasis text-decoration-none">
+                        <i class="{{ servicio.categoria.icono_fa|default:'fas fa-tag' }} me-1"></i>{{ servicio.categoria.nombre }}
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if servicio.descripcion_corta %}
+                <p class="lead text-muted">{{ servicio.descripcion_corta }}</p>
+            {% endif %}
+
+            <div class="my-4 fs-5 lh-lg text-muted">
+                {{ servicio.descripcion_larga|linebreaksbr }}
+            </div>
+
+            <div class="card my-4 shadow-sm border-light-subtle">
+                <div class="card-body">
+                    <h5 class="card-title fw-semibold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Detalles del Servicio:</h5>
+                    <ul class="list-group list-group-flush">
+                        {% if servicio.precio is not None %}
+                            <li class="list-group-item">
+                                <i class="fas fa-dollar-sign fa-fw me-2 text-success"></i><strong>Precio:</strong>
+                                <span class="fs-4 text-success fw-bold">${{ servicio.precio|floatformat:2 }}</span>
+                                {% if servicio.unidad_precio and servicio.unidad_precio != 'unico' %}
+                                    <small class="text-muted">/ {{ servicio.get_unidad_precio_display }}</small>
+                                {% endif %}
+                            </li>
+                        {% else %}
+                            <li class="list-group-item"><i class="fas fa-tag fa-fw me-2 text-muted"></i><strong>Precio:</strong> Incluido con su estancia o consultar en recepción.</li>
+                        {% endif %}
+
+                        {% if servicio.horario_disponibilidad %}
+                            <li class="list-group-item"><i class="fas fa-clock fa-fw me-2 text-muted"></i><strong>Horario:</strong> {{ servicio.horario_disponibilidad }}</li>
+                        {% endif %}
+
+                        {% if servicio.ubicacion_especifica %}
+                            <li class="list-group-item"><i class="fas fa-map-marker-alt fa-fw me-2 text-muted"></i><strong>Ubicación:</strong> {{ servicio.ubicacion_especifica }}</li>
+                        {% endif %}
+
+                        <li class="list-group-item">
+                            <i class="fas fa-calendar-check fa-fw me-2 text-muted"></i><strong>Reserva Previa:</strong>
+                            {% if servicio.requiere_reserva_previa %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis">Sí, se requiere</span>
+                            {% else %}
+                                <span class="badge bg-info-subtle text-info-emphasis">No necesaria</span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-power-off fa-fw me-2 text-muted"></i><strong>Disponibilidad:</strong>
+                            {% if servicio.disponible %}<span class="badge bg-success-subtle text-success-emphasis">Disponible</span>{% else %}<span class="badge bg-danger-subtle text-danger-emphasis">No Disponible Actualmente</span>{% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex flex-wrap gap-2">
+                {% if servicio.requiere_reserva_previa %}
+                <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-warning fw-bold shadow-sm">
+                    <i class="fas fa-calendar-plus me-2"></i>Solicitar Reserva de Servicio
+                </a>
+                {% endif %}
+                <a href="{% url 'core:contact' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-question-circle me-2"></i>Consultar sobre este Servicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if servicios_relacionados %}
+    <div class="mt-5 pt-5 border-top">
+        <h3 class="mb-4 fw-bold text-center">Otros Servicios que Podrían Interesarte</h3>
+        <div class="row g-4">
+            {% for srv_rel in servicios_relacionados %}
+            <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card h-100 shadow-sm service-card-list border-0">
+                     <a href="{{ srv_rel.get_absolute_url }}" class="text-decoration-none text-dark">
+                        {% if srv_rel.imagen %}
+                            <img src="{{ srv_rel.imagen.url }}" class="card-img-top service-card-img-list" alt="{{ srv_rel.nombre }}">
+                        {% elif srv_rel.icono_fa %}
+                             <div class="text-center py-4 bg-light-subtle">
+                                 <i class="{{ srv_rel.icono_fa }} fa-3x text-primary"></i>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4 bg-light-subtle">
+                                <i class="fas fa-star fa-3x text-primary"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="card-body d-flex flex-column p-3">
+                        <h6 class="card-title fw-semibold"><a href="{{ srv_rel.get_absolute_url }}" class="text-decoration-none text-primary stretched-link-hover">{{ srv_rel.nombre }}</a></h6>
+                        <p class="card-text text-muted small flex-grow-1">{{ srv_rel.descripcion_corta|truncatewords:15 }}</p>
+                        <div class="mt-auto">
+                            <a href="{{ srv_rel.get_absolute_url }}" class="btn btn-sm btn-outline-secondary w-100">Ver Más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Ver Todos los Servicios
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+/* Reutilizar estilos de la lista si son aplicables */
+.service-card-list {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.service-card-list:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.8rem 1.5rem rgba(0,0,0,.1)!important;
+}
+.service-card-img-list { /* Para las tarjetas de servicios relacionados */
+    height: 180px;
+    object-fit: cover;
+}
+.stretched-link-hover:hover {
+    color: var(--bs-primary-dark) !important;
+    text-decoration: underline !important;
+}
+</style>
+{% endblock %}
+```

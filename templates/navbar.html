@@ -1,0 +1,74 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'core:index' %}">
+            {% if config.logo %}
+                <img src="{{ config.logo.url }}" alt="{{ config.nombre_hotel|default:'Hotel Premium MVP' }} Logo" height="40" class="d-inline-block align-text-top">
+            {% else %}
+                {{ config.nombre_hotel|default:"Hotel Premium MVP" }}
+            {% endif %}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'core:index' %}active{% endif %}" aria-current="page" href="{% url 'core:index' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.app_name == 'habitaciones' %}active{% endif %}" href="{% url 'habitaciones:lista_tipos_habitacion' %}">Habitaciones</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.app_name == 'servicios' %}active{% endif %}" href="{% url 'servicios:lista_servicios' %}">Servicios</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'core:gallery' %}active{% endif %}" href="{% url 'core:gallery' %}">Galería</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'core:about' %}active{% endif %}" href="{% url 'core:about' %}">Sobre Nosotros</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'core:contact' %}active{% endif %}" href="{% url 'core:contact' %}">Contacto</a>
+                </li>
+                 <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                    <a class="btn btn-warning fw-bold {% if request.resolver_match.view_name == 'reservas:crear_reserva' %}active shadow-sm{% else %}shadow-sm{% endif %}" href="{% url 'reservas:crear_reserva' %}" role="button">
+                        <i class="fas fa-calendar-alt me-1"></i> Reservar Ahora
+                    </a>
+                </li>
+
+                {% comment %} Bloque para autenticación (opcional)
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'clientes' or request.resolver_match.url_name == 'logout' %}active{% endif %}" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.get_short_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                            <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="#">Mis Reservas</a></li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank">Admin Panel</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" id="logoutForm" class="d-none">{% csrf_token %}</form>
+                                <a class="dropdown-item" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <a class="btn btn-outline-light btn-sm {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'login' %}" role="button">
+                            <i class="fas fa-sign-in-alt me-1"></i> Iniciar Sesión
+                        </a>
+                    </li>
+                {% endif %}
+                {% endcomment %}
+            </ul>
+        </div>
+    </div>
+</nav>
+```

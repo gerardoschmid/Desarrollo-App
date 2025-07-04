@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Nuestros Servicios{% endblock page_title %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    {% block content_title %}
+    <!-- El H1 ya está en base.html -->
+    {% endblock %}
+    <p class="lead text-center mb-5 col-md-8 mx-auto">
+        Descubre la variedad de servicios que {{ config.nombre_hotel|default:"Hotel Premium MVP" }} tiene para ofrecerte. Desde opciones gastronómicas hasta actividades de ocio y bienestar, todo pensado para enriquecer tu estancia.
+    </p>
+
+    {% if servicios_por_categoria %}
+        {% for categoria, servicios_lista in servicios_por_categoria %}
+            <section class="mb-5">
+                <div class="d-flex align-items-center mb-4">
+                    {% if categoria.icono_fa %}
+                        <i class="{{ categoria.icono_fa }} fa-2x text-primary me-3"></i>
+                    {% else %}
+                        <i class="fas fa-concierge-bell fa-2x text-primary me-3"></i> <!-- Icono por defecto para categoría -->
+                    {% endif %}
+                    <h2 class="display-6 fw-semibold mb-0">{{ categoria.nombre }}</h2>
+                </div>
+                {% if categoria.descripcion %}
+                    <p class="text-muted ms-5 ps-1">{{ categoria.descripcion }}</p>
+                {% endif %}
+
+                <div class="row g-4">
+                    {% for servicio in servicios_lista %}
+                    <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                        <div class="card h-100 shadow-sm service-card-list border-0 overflow-hidden">
+                            <a href="{{ servicio.get_absolute_url }}" class="text-decoration-none text-dark">
+                                {% if servicio.imagen %}
+                                    <img src="{{ servicio.imagen.url }}" class="card-img-top service-card-img-list" alt="Imagen de {{ servicio.nombre }}">
+                                {% elif servicio.icono_fa %}
+                                    <div class="text-center py-5 bg-light-subtle">
+                                         <i class="{{ servicio.icono_fa }} fa-4x text-primary"></i>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5 bg-light-subtle">
+                                        <i class="fas fa-star fa-4x text-primary"></i> <!-- Icono por defecto para servicio -->
+                                    </div>
+                                {% endif %}
+                            </a>
+                            <div class="card-body d-flex flex-column p-4">
+                                <h5 class="card-title fw-bold mb-2"><a href="{{ servicio.get_absolute_url }}" class="text-decoration-none text-primary stretched-link-hover">{{ servicio.nombre }}</a></h5>
+                                <p class="card-text text-muted small flex-grow-1">{{ servicio.descripcion_corta|truncatewords:20|default:"Descubre más sobre este servicio." }}</p>
+
+                                {% if servicio.precio is not None %}
+                                    <p class="card-text h5 text-success fw-semibold mb-1">
+                                        ${{ servicio.precio|floatformat:2 }}
+                                        {% if servicio.unidad_precio and servicio.unidad_precio != 'unico' %}
+                                            <small class="text-muted fw-normal">/ {{ servicio.get_unidad_precio_display }}</small>
+                                        {% endif %}
+                                    </p>
+                                {% else %}
+                                    <p class="card-text text-muted mb-1">Consultar / Incluido</p>
+                                {% endif %}
+
+                                 {% if servicio.horario_disponibilidad %}
+                                    <p class="card-text small text-muted"><i class="fas fa-clock fa-fw me-1"></i>{{ servicio.horario_disponibilidad }}</p>
+                                {% endif %}
+                                <div class="mt-auto pt-2">
+                                     <a href="{{ servicio.get_absolute_url }}" class="btn btn-sm btn-outline-primary w-100">Más Detalles</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% if not forloop.last %}<hr class="my-5">{% endif %}
+        {% endfor %}
+
+    {% elif servicios_todos %} {# Fallback si no se agrupa por categoría y se pasa una lista plana #}
+        <div class="row g-4">
+            {% for servicio in servicios_todos %}
+             <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card h-100 shadow-sm service-card-list border-0 overflow-hidden">
+                    <!-- ... (estructura similar a la de arriba para un servicio individual) ... -->
+                     <a href="{{ servicio.get_absolute_url }}" class="text-decoration-none text-dark">
+                        {% if servicio.imagen %}
+                            <img src="{{ servicio.imagen.url }}" class="card-img-top service-card-img-list" alt="Imagen de {{ servicio.nombre }}">
+                        {% elif servicio.icono_fa %}
+                            <div class="text-center py-5 bg-light-subtle">
+                                 <i class="{{ servicio.icono_fa }} fa-4x text-primary"></i>
+                            </div>
+                        {% else %}
+                             <div class="text-center py-5 bg-light-subtle">
+                                <i class="fas fa-star fa-4x text-primary"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <div class="card-body d-flex flex-column p-4">
+                        <h5 class="card-title fw-bold mb-2"><a href="{{ servicio.get_absolute_url }}" class="text-decoration-none text-primary stretched-link-hover">{{ servicio.nombre }}</a></h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ servicio.descripcion_corta|truncatewords:20 }}</p>
+                         {% if servicio.precio is not None %}
+                            <p class="card-text h5 text-success fw-semibold mb-1">${{ servicio.precio|floatformat:2 }}</p>
+                        {% endif %}
+                        <div class="mt-auto pt-2">
+                             <a href="{{ servicio.get_absolute_url }}" class="btn btn-sm btn-outline-primary w-100">Más Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+    <div class="alert alert-info text-center shadow-sm" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i>No hay servicios disponibles en este momento.</h4>
+        <p>Estamos trabajando para ofrecerte lo mejor. Vuelve pronto o <a href="{% url 'core:contact' %}" class="alert-link">contáctanos</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.service-card-list {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.service-card-list:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 2.5rem rgba(0,0,0,.12)!important;
+}
+.service-card-img-list {
+    height: 220px;
+    object-fit: cover;
+}
+.stretched-link-hover:hover {
+    color: var(--bs-primary-dark) !important;
+    text-decoration: underline !important;
+}
+</style>
+{% endblock %}
+```

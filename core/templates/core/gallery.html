@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Galería de Fotos{% endblock page_title %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    {% block content_title %}
+    <!-- El H1 ya está en base.html -->
+    {% endblock %}
+    <p class="lead text-center mb-5 col-md-8 mx-auto">
+        Explora nuestras instalaciones, el confort de nuestras habitaciones y los mejores momentos capturados en {{ config.nombre_hotel|default:"Hotel Premium MVP" }}.
+    </p>
+
+    {% if imagenes %}
+    <div class="row g-3 gallery-container">
+        {% for imagen_obj in imagenes %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card gallery-card shadow-sm border-0 overflow-hidden">
+                <a href="{{ imagen_obj.imagen.url }}"
+                   data-bs-toggle="modal"
+                   data-bs-target="#galleryModal"
+                   data-bs-slide-to="{{ forloop.counter0 }}"
+                   aria-label="Ver imagen {{ imagen_obj.titulo|default:forloop.counter }} en grande">
+                    <img src="{{ imagen_obj.imagen.url }}"
+                         alt="{{ imagen_obj.alt_text|default:imagen_obj.titulo|default:'Imagen de la galería del hotel' }}"
+                         class="img-fluid gallery-thumbnail">
+                </a>
+                {% if imagen_obj.titulo %}
+                <div class="gallery-caption p-2 text-center small bg-light">
+                    {{ imagen_obj.titulo }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación (si se usa ListView con paginate_by) -->
+    {% if is_paginated %}
+    <nav aria-label="Navegación de galería" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Anterior">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link" aria-hidden="true">&laquo;</span>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                {% if num == 1 and page_obj.number > 4 %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% if num == page_obj.paginator.num_pages and page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Siguiente">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link" aria-hidden="true">&raquo;</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+
+    <!-- Modal para la galería -->
+    <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered"> <!-- modal-xl para más grande -->
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-header border-0 position-absolute top-0 end-0" style="z-index: 1056;">
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="galleryCarousel" class="carousel slide" data-bs-ride="false"> <!-- data-bs-ride="false" para que no inicie solo -->
+                        <div class="carousel-inner bg-dark">
+                            {% for imagen_obj in imagenes_modal|default:imagenes %} <!-- Usar 'imagenes_modal' si se pasa un queryset completo para el modal -->
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="d-flex justify-content-center align-items-center" style="height: 90vh;">
+                                    <img src="{{ imagen_obj.imagen.url }}"
+                                         class="d-block modal-carousel-img"
+                                         alt="{{ imagen_obj.alt_text|default:imagen_obj.titulo|default:'Imagen de la galería del hotel' }}">
+                                </div>
+                                {% if imagen_obj.titulo or imagen_obj.descripcion %}
+                                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 p-2 rounded mb-4">
+                                    {% if imagen_obj.titulo %}<h5>{{ imagen_obj.titulo }}</h5>{% endif %}
+                                    {% if imagen_obj.descripcion %}<p class="mb-0 small">{{ imagen_obj.descripcion }}</p>{% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if imagenes_modal|default:imagenes|length > 1 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Siguiente</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info text-center" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-image me-2"></i>Nuestra galería está vacía por el momento.</h4>
+        <p>Estamos trabajando en capturar los mejores ángulos de nuestro hotel. ¡Vuelve pronto!</p>
+        <hr>
+        <p class="mb-0">Mientras tanto, puedes conocer más sobre nuestras <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="alert-link">habitaciones</a> o <a href="{% url 'servicios:lista_servicios' %}" class="alert-link">servicios</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.gallery-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.gallery-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,.1)!important;
+}
+.gallery-thumbnail {
+    width: 100%;
+    height: 220px; /* Ajusta la altura según tus preferencias */
+    object-fit: cover;
+    cursor: pointer;
+}
+.gallery-caption {
+    font-size: 0.85em;
+    min-height: 50px; /* Para alinear tarjetas con y sin título */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-carousel-img {
+    max-height: 85vh; /* Para que no ocupe toda la pantalla verticalmente */
+    max-width: 100%;
+    object-fit: contain; /* Para que la imagen se vea completa sin recortar */
+    border-radius: .3rem;
+}
+/* Para que el modal no sea tan opaco */
+.modal-backdrop.show {
+    opacity: .8;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var galleryModalElement = document.getElementById('galleryModal');
+    if (galleryModalElement) {
+        var galleryCarouselElement = document.getElementById('galleryCarousel');
+        var carousel = new bootstrap.Carousel(galleryCarouselElement, {
+            interval: false, // No auto-play
+            wrap: true      // Permite ciclar el carrusel
+        });
+
+        // Cuando se muestra el modal, deslizar el carrusel a la imagen correcta
+        galleryModalElement.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Botón que disparó el modal (la miniatura <a>)
+            if (button) { // Asegurarse que el evento fue disparado por un botón
+                var slideToIndex = button.getAttribute('data-bs-slide-to');
+                if (slideToIndex) {
+                    carousel.to(parseInt(slideToIndex));
+                }
+            }
+        });
+
+        // Opcional: Pausar el carrusel cuando el modal se oculta
+        // galleryModalElement.addEventListener('hide.bs.modal', function () {
+        //     carousel.pause();
+        // });
+    }
+});
+</script>
+{% endblock %}
+```

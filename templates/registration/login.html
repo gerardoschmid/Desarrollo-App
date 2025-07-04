@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Iniciar Sesión{% endblock page_title %}
+{% block no_auto_h1 %}True{% endblock %} <!-- Para que base.html no ponga un H1 automático -->
+
+
+{% block content %}
+<div class="row justify-content-center mt-lg-5">
+    <div class="col-md-8 col-lg-6 col-xl-5">
+        <div class="card shadow-lg border-0 rounded-3">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    {% if config.logo %}
+                        <img src="{{ config.logo.url }}" alt="{{ config.nombre_hotel|default:'Hotel Premium MVP' }} Logo" style="max-height: 70px;" class="mb-3">
+                    {% endif %}
+                    <h1 class="h3 fw-bold mb-0">Bienvenido de Nuevo</h1>
+                    <p class="text-muted">Inicia sesión para continuar.</p>
+                </div>
+
+                {% if form.errors and not form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Por favor, corrige los errores en el formulario.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                         <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+
+                {% if next and not user.is_authenticated %}
+                    <div class="alert alert-info small" role="alert">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Debes iniciar sesión para acceder a esta página.
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}" novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-floating mb-3">
+                        {{ form.username }}
+                        <label for="{{ form.username.id_for_label }}">{{ form.username.label|default:"Nombre de usuario" }}</label>
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block"> <!-- Siempre visible si hay error -->
+                                {% for error in form.username.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        {{ form.password }}
+                        <label for="{{ form.password.id_for_label }}">{{ form.password.label|default:"Contraseña" }}</label>
+                         {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remember_me" id="remember_me">
+                            <label class="form-check-label small" for="remember_me">
+                                Recordarme
+                            </label>
+                        </div>
+                        <a href="#" class="small text-decoration-none">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-primary btn-lg fw-bold" type="submit">
+                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next|default:'' }}">
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="small">¿No tienes una cuenta? <a href="#" class="text-decoration-none">Regístrate aquí</a></p>
+                    <p class="small mt-3"><a href="{% url 'core:index' %}" class="text-decoration-none"><i class="fas fa-arrow-left me-1"></i> Volver a la página principal</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_head %}
+{{ form.media }} <!-- Para widgets que necesiten JS/CSS, como DatePicker si lo usaras -->
+<style>
+    /* Ajustes para campos de formulario de Django y Bootstrap Floating Labels */
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        height: calc(3.5rem + 2px); /* Altura estándar de floating label */
+        line-height: 1.25;
+    }
+    .form-floating > label {
+        padding: 1rem .75rem;
+    }
+    /* Asegurar que los errores se muestren correctamente debajo del campo */
+    .form-floating .invalid-feedback {
+        margin-top: 0.25rem;
+    }
+    /* Si Django renderiza <ul class="errorlist"> */
+    .errorlist {
+        list-style-type: none;
+        padding-left: 0;
+        color: var(--bs-danger);
+        font-size: .875em; /* small */
+    }
+    .errorlist li {
+        margin-bottom: .25rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Script para asegurar que los campos de Django tengan la clase form-control si no la tienen
+document.addEventListener('DOMContentLoaded', function() {
+    var usernameField = document.getElementById('{{ form.username.id_for_label }}');
+    if (usernameField && !usernameField.classList.contains('form-control')) {
+        usernameField.classList.add('form-control');
+    }
+    var passwordField = document.getElementById('{{ form.password.id_for_label }}');
+    if (passwordField && !passwordField.classList.contains('form-control')) {
+        passwordField.classList.add('form-control');
+    }
+});
+</script>
+{% endblock %}
+```

@@ -1,113 +1,78 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:"es" }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{{ page_title|default:"Hotel Premium" }}{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome (opcional, para iconos) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="description" content="{% block meta_description %}{% if config and config.descripcion_corta_meta %}{{ config.descripcion_corta_meta }}{% else %}Bienvenido al Hotel Premium MVP, tu mejor opción de alojamiento con confort y calidad.{% endif %}{% endblock meta_description %}">
+    <meta name="keywords" content="{% block meta_keywords %}{% if config and config.palabras_clave_meta %}{{ config.palabras_clave_meta }}{% else %}hotel, premium, alojamiento, barinas, venezuela, vacaciones, reservas, confort, calidad{% endif %}{% endblock meta_keywords %}">
 
-    <!-- Estilos personalizados (opcional) -->
+    <title>{% block page_title %}{% endblock page_title %}{% if not page_title and config %}{{ config.nombre_hotel }}{% elif not page_title %}Hotel Premium MVP{% endif %}{% if page_title and config %} - {{ config.nombre_hotel }}{% elif page_title %} - Hotel Premium MVP{% endif %}</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/custom_styles.css' %}"> {# Crea este archivo en static/css/ si lo necesitas #}
+    <!-- Favicon -->
+    {% if config and config.favicon %}
+        <link rel="icon" href="{{ config.favicon.url }}" type="image/x-icon">
+    {% else %}
+        <!-- <link rel="icon" href="{% static 'img/favicon_default.ico' %}" type="image/x-icon"> -->
+    {% endif %}
 
-    {% block extra_head %}{% endblock %}
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v=1.1"> <!-- Cache busting -->
+
+    {% block extra_head %}{% endblock extra_head %}
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" href="{% url 'core:inicio' %}">
-                    <i class="fas fa-hotel"></i> Hotel Premium
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'core:inicio' %}">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.app_name == 'habitaciones' and request.resolver_match.url_name == 'lista_tipos_habitacion' %}active{% endif %}" href="{% url 'habitaciones:lista_tipos_habitacion' %}">Habitaciones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.app_name == 'servicios' and request.resolver_match.url_name == 'lista_servicios' %}active{% endif %}" href="{% url 'servicios:lista_servicios' %}">Servicios</a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'galeria' %}active{% endif %}" href="{% url 'core:galeria' %}">Galería</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'sobre_nosotros' %}active{% endif %}" href="{% url 'core:sobre_nosotros' %}">Sobre Nosotros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'contacto' %}active{% endif %}" href="{% url 'core:contacto' %}">Contacto</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-warning text-dark ms-2 {% if request.resolver_match.app_name == 'reservas' and request.resolver_match.url_name == 'crear_reserva' %}active{% endif %}" href="{% url 'reservas:crear_reserva' %}">¡Reserva Ahora!</a>
-                        </li>
-                        {% if user.is_authenticated %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user"></i> {{ user.username }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUser">
-                                    {% if user.is_staff %}
-                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'reservas:admin_lista_reservas' %}">Gestionar Reservas</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    {% endif %}
-                                    <!-- <li><a class="dropdown-item" href="#">Mi Perfil</a></li> -->
-                                    <!-- <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li> -->
-                                </ul>
-                            </li>
-                        {% else %}
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-                            </li> -->
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
 
-    <main class="container mt-4 mb-5">
+    {% include "navbar.html" %}
+
+    <main role="main">
         {% if messages %}
-            <div class="row">
-                <div class="col-md-12">
-                    {% for message in messages %}
-                        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                </div>
+            <div class="container mt-3" id="messages-container">
+                {% for message in messages %}
+                    <div class="alert alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
 
-        {% block content %}
-        <!-- El contenido específico de cada página irá aquí -->
-        {% endblock %}
+        {% block hero_section %}{% endblock hero_section %}
+
+        <div class="album py-4 {% block content_bg_class | default:'bg-body-tertiary' %}">
+            <div class="container {% block container_class %}{% endblock container_class %}">
+                {% block content_title %}
+                {% if page_title and not hero_section and not no_auto_h1 %}
+                    <div class="text-center mb-4">
+                        <h1 class="display-5 fw-bold">{% block h1_title %}{{ page_title }}{% endblock %}</h1>
+                    </div>
+                {% endif %}
+                {% endblock %}
+
+                {% block content %}{% endblock content %}
+            </div>
+        </div>
     </main>
 
-    <footer class="bg-dark text-white text-center p-4 mt-auto">
-        <div class="container">
-            <p>&copy; {% now "Y" %} Hotel Premium. Todos los derechos reservados.</p>
-            <p>
-                <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
-            </p>
-            <!-- Aquí podrías añadir sitemap, políticas de privacidad, etc. -->
-        </div>
-    </footer>
+    {% include "footer.html" %}
 
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_scripts %}{% endblock %}
+    <button id="scrollTopButton" class="btn btn-primary position-fixed bottom-0 end-0 m-3 p-2 rounded-circle shadow d-none" aria-label="Volver arriba" style="width:50px; height:50px; z-index:1050;">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Bootstrap 5.3 JS Bundle (Popper.js incluido) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'js/custom.js' %}?v=1.1"></script> <!-- Cache busting -->
+
+    {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 </html>

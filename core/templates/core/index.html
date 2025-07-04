@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Bienvenido{% endblock page_title %}
+
+{% block meta_description %}{% if config and config.descripcion_corta_meta %}{{ config.descripcion_corta_meta }}{% else %}Bienvenido a {{ config.nombre_hotel|default:'Hotel Premium MVP' }}. Ofrecemos las mejores habitaciones y servicios para tu estancia en Barinas, Venezuela.{% endif %}{% endblock meta_description %}
+
+{% block hero_section %}
+<div class="hero-section text-center text-white bg-dark"
+     style="background-image: url('{% if config.imagen_hero_background %}{{ config.imagen_hero_background.url }}{% else %}{% static 'img/hero_default.jpg' %}{% endif %}'); background-size: cover; background-position: center center;">
+    <div class="container py-5">
+        <h1 class="display-4 fw-bold">{% if config.texto_hero_principal %}{{ config.texto_hero_principal }}{% else %}{{ config.nombre_hotel|default:"Hotel Premium MVP" }}{% endif %}</h1>
+        <p class="lead fs-4 col-lg-8 mx-auto">
+            {% if config.texto_hero_secundario %}{{ config.texto_hero_secundario }}{% else %}Tu oasis de confort y hospitalidad en el corazón de la ciudad. Descubre una experiencia única.{% endif %}
+        </p>
+        <a href="{% url 'reservas:crear_reserva' %}" class="btn btn-warning btn-lg mt-3 fw-bold shadow">
+            <i class="fas fa-calendar-check me-2"></i>¡Reserva Tu Estancia Ahora!
+        </a>
+        <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-outline-light btn-lg mt-3 ms-2">
+            Ver Habitaciones
+        </a>
+    </div>
+</div>
+{% endblock hero_section %}
+
+{% block content_bg_class %}bg-white{% endblock %} <!-- Fondo blanco para el contenido de esta página -->
+
+{% block content %}
+<!-- Sección de Bienvenida Adicional (Opcional) -->
+<section class="py-5 text-center border-bottom">
+    <div class="container">
+        <h2 class="display-6 fw-bold mb-3">Bienvenido a Tu Hogar Lejos de Casa</h2>
+        <p class="lead text-muted col-lg-9 mx-auto">
+            En {{ config.nombre_hotel|default:"Hotel Premium MVP" }}, nos dedicamos a hacer de tu visita una experiencia inolvidable.
+            Descubre nuestras cómodas instalaciones, servicios de primera clase y la cálida hospitalidad que nos caracteriza.
+            Ya sea por negocios o placer, encontrarás todo lo que necesitas para una estancia perfecta.
+        </p>
+    </div>
+</section>
+
+<!-- Tipos de Habitación Destacados -->
+{% if tipos_habitacion_destacados %}
+<section id="habitaciones-destacadas" class="py-5 bg-light-subtle"> <!-- bg-light-subtle es más suave -->
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Nuestras Habitaciones Destacadas</h2>
+            <p class="text-muted">Espacios diseñados para tu máximo confort y descanso.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            {% for tipo in tipos_habitacion_destacados %}
+            <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="card h-100 shadow-sm room-card border-0">
+                    <a href="{{ tipo.get_absolute_url }}" class="text-decoration-none text-dark">
+                        {% if tipo.imagen_principal %}
+                            <img src="{{ tipo.imagen_principal.url }}" class="card-img-top room-card-img" alt="{{ tipo.nombre }}">
+                        {% else %}
+                            <img src="{% static 'img/placeholder_room.jpg' %}" class="card-img-top room-card-img" alt="Imagen no disponible para {{ tipo.nombre }}">
+                        {% endif %}
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold"><a href="{{ tipo.get_absolute_url }}" class="text-decoration-none text-primary">{{ tipo.nombre }}</a></h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ tipo.descripcion_corta|truncatewords:20 }}</p>
+                        <ul class="list-unstyled mb-3 small">
+                            <li><i class="fas fa-users text-muted me-2"></i>Capacidad: {{ tipo.capacidad_maxima }} personas</li>
+                            <li><i class="fas fa-bed text-muted me-2"></i>{{ tipo.tipo_cama|default:"Cama confortable" }}</li>
+                            <li><i class="fas fa-dollar-sign text-success me-2"></i>Desde: <strong class="fs-6">{{ tipo.get_precio_formateado }}</strong> / noche</li>
+                        </ul>
+                        <div class="mt-auto text-center">
+                            <a href="{{ tipo.get_absolute_url }}" class="btn btn-sm btn-outline-primary me-2">Ver Detalles</a>
+                            <a href="{% url 'reservas:crear_reserva' %}?tipo_habitacion={{ tipo.id }}" class="btn btn-sm btn-warning fw-semibold">Reservar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if tipos_habitacion_destacados|length >= 1 %} <!-- Ajustar si quieres este botón con menos de 3 -->
+        <div class="text-center mt-5">
+            <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-th-list me-2"></i>Ver Todas las Habitaciones
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Servicios Destacados -->
+{% if servicios_destacados %}
+<section id="servicios-destacados" class="py-5 border-top">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Servicios Que Te Encantarán</h2>
+            <p class="text-muted">Amenidades y facilidades pensadas para enriquecer tu experiencia.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            {% for servicio in servicios_destacados %}
+            <div class="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch">
+                <div class="card h-100 text-center shadow-sm service-card border-0">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-3">
+                        {% if servicio.icono_fa %}
+                            <i class="{{ servicio.icono_fa }} fa-3x text-primary"></i>
+                        {% elif servicio.imagen %}
+                            <img src="{{ servicio.imagen.url }}" alt="{{ servicio.nombre }}" class="img-fluid rounded-circle" style="max-height: 70px; max-width: 70px; object-fit: cover; margin:auto;">
+                        {% else %}
+                            <i class="fas fa-concierge-bell fa-3x text-primary"></i>
+                        {% endif %}
+                        </div>
+                        <h5 class="card-title fw-semibold">{{ servicio.nombre }}</h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ servicio.descripcion_corta|truncatewords:15 }}</p>
+                        <div class="mt-auto">
+                            <a href="{{ servicio.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Saber Más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if servicios_destacados|length >= 1 %} <!-- Ajustar si quieres este botón con menos de 3-4 -->
+        <div class="text-center mt-5">
+            <a href="{% url 'servicios:lista_servicios' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-star me-2"></i>Descubre Todos los Servicios
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Llamada a la Acción (Galería o Contacto) -->
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="display-6 fw-bold mb-3">Explora {{ config.nombre_hotel|default:"Hotel Premium MVP" }}</h2>
+        {% if ultimas_imagenes_galeria %}
+        <p class="lead mb-4 col-lg-8 mx-auto">
+            Una imagen vale más que mil palabras. Descubre la belleza y el confort que te espera.
+        </p>
+        <div class="row g-2 justify-content-center mb-4">
+            {% for img_gal in ultimas_imagenes_galeria %}
+            <div class="col-6 col-md-3">
+                <a href="{{ img_gal.imagen.url }}" data-bs-toggle="modal" data-bs-target="#galleryModalIndex" data-bs-slide-to="{{ forloop.counter0 }}">
+                    <img src="{{ img_gal.imagen.url }}" alt="{{ img_gal.alt_text|default:img_gal.titulo }}" class="img-fluid rounded shadow-sm gallery-preview-thumb">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+         <a href="{% url 'core:gallery' %}" class="btn btn-light btn-lg">
+            <i class="fas fa-images me-2"></i>Ver Galería Completa
+        </a>
+        {% else %}
+         <p class="lead mb-4 col-lg-8 mx-auto">
+            Estamos preparando nuestra galería de fotos. Mientras tanto, no dudes en contactarnos para cualquier consulta.
+        </p>
+        <a href="{% url 'core:contact' %}" class="btn btn-light btn-lg">
+            <i class="fas fa-envelope me-2"></i>Contáctanos
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Modal para la galería de la página de inicio (si se usa) -->
+{% if ultimas_imagenes_galeria %}
+<div class="modal fade" id="galleryModalIndex" tabindex="-1" aria-labelledby="galleryModalIndexLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 position-absolute top-0 end-0" style="z-index: 1056;">
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="galleryCarouselIndex" class="carousel slide" data-bs-ride="false">
+                    <div class="carousel-inner bg-dark">
+                        {% for img_gal in ultimas_imagenes_galeria %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                             <div class="d-flex justify-content-center align-items-center" style="height: 90vh;">
+                                <img src="{{ img_gal.imagen.url }}" class="d-block modal-carousel-img" alt="{{ img_gal.alt_text|default:img_gal.titulo }}">
+                            </div>
+                            {% if img_gal.titulo %}
+                            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 p-2 rounded mb-4">
+                                <h5>{{ img_gal.titulo }}</h5>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if ultimas_imagenes_galeria|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarouselIndex" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#galleryCarouselIndex" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    min-height: 70vh; /* Un poco más alto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.hero-section::before { /* Overlay oscuro para mejorar legibilidad */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)); /* Gradiente sutil */
+    z-index: 1;
+}
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.room-card:hover, .service-card:hover {
+    transform: translateY(-5px);
+    /* box-shadow: 0 0.5rem 1rem rgba(0,0,0,.10)!important; */
+}
+.room-card-img {
+    height: 250px;
+    object-fit: cover;
+}
+.gallery-preview-thumb {
+    height: 150px;
+    width: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+}
+.gallery-preview-thumb:hover {
+    opacity: 0.8;
+}
+.modal-carousel-img { /* Reutilizado de gallery.html */
+    max-height: 85vh;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: .3rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if ultimas_imagenes_galeria %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var galleryModalIndexElement = document.getElementById('galleryModalIndex');
+    if (galleryModalIndexElement) {
+        var galleryCarouselIndexElement = document.getElementById('galleryCarouselIndex');
+        var carouselIndex = new bootstrap.Carousel(galleryCarouselIndexElement, {
+            interval: false,
+            wrap: true
+        });
+        galleryModalIndexElement.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            if (button) {
+                var slideToIndex = button.getAttribute('data-bs-slide-to');
+                if (slideToIndex) {
+                    carouselIndex.to(parseInt(slideToIndex));
+                }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
+```

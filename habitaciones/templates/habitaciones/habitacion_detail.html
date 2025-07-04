@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}{{ tipo_habitacion.nombre }}{% endblock page_title %}
+{% block meta_description %}{{ tipo_habitacion.descripcion_corta|default:tipo_habitacion.descripcion_larga|truncatewords:25 }}{% endblock meta_description %}
+{% block no_auto_h1 %}True{% endblock %} <!-- El H1 se maneja dentro de este bloque -->
+
+{% block content_bg_class %}bg-white{% endblock %} <!-- Fondo blanco para esta página -->
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    <div class="row g-4 g-lg-5">
+        <!-- Columna de Galería de Imágenes -->
+        <div class="col-lg-7">
+            {% if tipo_habitacion.imagenes_adicionales.all or tipo_habitacion.imagen_principal %}
+            <div id="carouselHabitacionImagenes" class="carousel slide shadow-lg rounded overflow-hidden mb-3" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% if tipo_habitacion.imagen_principal %}
+                    <button type="button" data-bs-target="#carouselHabitacionImagenes" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Imagen Principal"></button>
+                    {% endif %}
+                    {% for imagen in tipo_habitacion.imagenes_adicionales.all %}
+                    <button type="button" data-bs-target="#carouselHabitacionImagenes" data-bs-slide-to="{% if tipo_habitacion.imagen_principal %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}" aria-label="Imagen {{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner">
+                    {% if tipo_habitacion.imagen_principal %}
+                    <div class="carousel-item active">
+                        <img src="{{ tipo_habitacion.imagen_principal.url }}" class="d-block w-100 habitacion-carousel-img" alt="{{ tipo_habitacion.nombre }} - Imagen Principal">
+                    </div>
+                    {% endif %}
+                    {% for imagen in tipo_habitacion.imagenes_adicionales.all %}
+                    <div class="carousel-item {% if not tipo_habitacion.imagen_principal and forloop.first %}active{% endif %}">
+                        <img src="{{ imagen.imagen.url }}" class="d-block w-100 habitacion-carousel-img" alt="{{ imagen.alt_text|default:tipo_habitacion.nombre }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if tipo_habitacion.imagenes_adicionales.all|length > 0 or tipo_habitacion.imagenes_adicionales.all|length == 0 and tipo_habitacion.imagen_principal and tipo_habitacion.imagenes_adicionales.all|length > 0 %} <!-- Mostrar controles si hay más de una imagen efectiva -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselHabitacionImagenes" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselHabitacionImagenes" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Miniaturas -->
+            {% if tipo_habitacion.imagenes_adicionales.all|length > 0 or tipo_habitacion.imagen_principal and tipo_habitacion.imagenes_adicionales.all %}
+            <div class="row gx-2 gy-2 d-none d-md-flex thumbnail-gallery">
+                {% if tipo_habitacion.imagen_principal %}
+                <div class="col-3 col-md-2">
+                    <img src="{{ tipo_habitacion.imagen_principal.url }}" class="img-fluid rounded habitacion-thumbnail active-thumbnail"
+                         data-bs-target="#carouselHabitacionImagenes" data-bs-slide-to="0" alt="Miniatura Principal">
+                </div>
+                {% endif %}
+                {% for imagen in tipo_habitacion.imagenes_adicionales.all %}
+                <div class="col-3 col-md-2">
+                    <img src="{{ imagen.imagen.url }}" class="img-fluid rounded habitacion-thumbnail"
+                         data-bs-target="#carouselHabitacionImagenes" data-bs-slide-to="{% if tipo_habitacion.imagen_principal %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}"
+                         alt="Miniatura {{ imagen.alt_text|default:forloop.counter }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center p-5 bg-light rounded shadow-sm">
+                <i class="fas fa-image fa-5x text-muted mb-3"></i>
+                <p class="text-muted">No hay imágenes disponibles para este tipo de habitación.</p>
+                <img src="{% static 'img/placeholder_room_detail.jpg' %}" class="img-fluid rounded shadow-sm mt-3" alt="Imagen no disponible para {{ tipo_habitacion.nombre }}">
+                 <!-- Placeholder: <img src="https://via.placeholder.com/800x600.png?text=Imagen+no+disponible" class="img-fluid rounded shadow-sm" alt="Imagen no disponible"> -->
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Columna de Detalles de la Habitación -->
+        <div class="col-lg-5">
+            <h1 class="display-5 fw-bold mb-2">{{ tipo_habitacion.nombre }}</h1>
+            <p class="text-muted mb-3">{{ tipo_habitacion.descripcion_corta }}</p>
+
+            <div class="bg-warning-subtle p-3 rounded mb-4 shadow-sm border border-warning-subtle">
+                <h4 class="mb-0 text-warning-emphasis"><i class="fas fa-dollar-sign me-2"></i>Desde <strong class="fs-3">${{ tipo_habitacion.get_precio_formateado }}</strong> <small class="fw-normal">/ noche</small></h4>
+                <p class="small text-muted mb-0">Impuestos y tasas pueden aplicar. Precios sujetos a cambio según temporada.</p>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <a href="{% url 'reservas:crear_reserva' %}?tipo_habitacion={{ tipo_habitacion.id }}&fecha_llegada={% now "Y-m-d" %}" class="btn btn-lg btn-warning fw-bold shadow">
+                    <i class="fas fa-calendar-check me-2"></i>Reservar Esta Habitación Ahora
+                </a>
+            </div>
+
+            <h5 class="fw-semibold mt-4 mb-2">Descripción Detallada:</h5>
+            <p class="text-muted lh-lg">{{ tipo_habitacion.descripcion_larga|linebreaksbr }}</p>
+
+            <div class="my-4">
+                <h5 class="fw-semibold mb-3">Características Principales:</h5>
+                <div class="row g-3 small">
+                    <div class="col-sm-6">
+                        <p class="mb-2"><i class="fas fa-users fa-fw me-2 text-primary"></i><strong>Capacidad:</strong> Hasta {{ tipo_habitacion.capacidad_maxima }} huéspedes</p>
+                        {% if tipo_habitacion.tipo_cama %}
+                        <p class="mb-2"><i class="fas fa-bed fa-fw me-2 text-primary"></i><strong>Cama(s):</strong> {{ tipo_habitacion.tipo_cama }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        {% if tipo_habitacion.tamano_habitacion_m2 %}
+                        <p class="mb-2"><i class="fas fa-ruler-combined fa-fw me-2 text-primary"></i><strong>Tamaño:</strong> {{ tipo_habitacion.tamano_habitacion_m2 }} m² (aprox.)</p>
+                        {% endif %}
+                        <!-- Puedes añadir más características aquí, ej. Vistas -->
+                        <p class="mb-2"><i class="fas fa-smoking-ban fa-fw me-2 text-primary"></i><strong>Política:</strong> Habitación de no fumadores</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if tipo_habitacion.amenidades.all %}
+            <div class="mt-4 pt-3 border-top">
+                <h5 class="fw-semibold mb-3">Amenidades Incluidas:</h5>
+                <ul class="list-unstyled row g-2 small">
+                    {% for amenidad in tipo_habitacion.amenidades.all %}
+                    <li class="col-sm-6 d-flex align-items-center">
+                        {% if amenidad.icono_fa %}
+                            <i class="{{ amenidad.icono_fa }} fa-fw me-2 text-success"></i>
+                        {% else %}
+                            <i class="fas fa-check-circle fa-fw me-2 text-success"></i>
+                        {% endif %}
+                        {{ amenidad.nombre }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="mt-4 pt-3 border-top">
+                 <a href="{% url 'habitaciones:lista_tipos_habitacion' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Ver Otros Tipos de Habitación
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.habitacion-carousel-img {
+    height: 450px; /* Ajusta según tus imágenes */
+    object-fit: cover;
+}
+.thumbnail-gallery img.habitacion-thumbnail {
+    height: 75px; /* Ajusta según tus imágenes */
+    object-fit: cover;
+    opacity: 0.65;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    border: 2px solid transparent;
+}
+.thumbnail-gallery img.habitacion-thumbnail:hover,
+.thumbnail-gallery img.habitacion-thumbnail.active-thumbnail {
+    opacity: 1;
+    border-color: var(--bs-warning); /* Color de la miniatura activa/hover */
+}
+
+@media (max-width: 991.98px) { /* Para tablets y móviles */
+    .habitacion-carousel-img {
+        height: 380px;
+    }
+}
+@media (max-width: 767.98px) { /* Para móviles */
+    .habitacion-carousel-img {
+        height: 300px;
+    }
+    .thumbnail-gallery {
+        display: none !important; /* Ocultar miniaturas en móviles para ahorrar espacio */
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var habitacionCarouselElement = document.getElementById('carouselHabitacionImagenes');
+    if (habitacionCarouselElement) {
+        var carousel = new bootstrap.Carousel(habitacionCarouselElement);
+        var thumbnails = document.querySelectorAll('.habitacion-thumbnail');
+
+        thumbnails.forEach(function(thumbnail) {
+            thumbnail.addEventListener('click', function() {
+                document.querySelectorAll('.habitacion-thumbnail.active-thumbnail').forEach(function(activeThumb) {
+                    activeThumb.classList.remove('active-thumbnail');
+                });
+                this.classList.add('active-thumbnail');
+                // No es necesario llamar a carousel.to() aquí si data-bs-slide-to está bien configurado
+            });
+        });
+
+        habitacionCarouselElement.addEventListener('slid.bs.carousel', function (event) {
+            var activeSlideIndex = event.to; // Índice del slide activo
+            document.querySelectorAll('.habitacion-thumbnail.active-thumbnail').forEach(function(activeThumb) {
+                activeThumb.classList.remove('active-thumbnail');
+            });
+            var activeThumbnail = document.querySelector('.habitacion-thumbnail[data-bs-slide-to="' + activeSlideIndex + '"]');
+            if (activeThumbnail) {
+                activeThumbnail.classList.add('active-thumbnail');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+```

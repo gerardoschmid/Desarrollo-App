@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Contacto{% endblock page_title %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    {% block content_title %}
+    <!-- El H1 ya está en base.html -->
+    {% endblock %}
+    <p class="lead text-center mb-5 col-md-8 mx-auto">
+        Estamos aquí para ayudarte. Envíanos tus preguntas, comentarios o solicitudes de información y nuestro equipo se pondrá en contacto contigo a la brevedad.
+    </p>
+
+    <div class="row justify-content-center g-4 g-lg-5">
+        <div class="col-lg-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="card-title text-center fw-bold mb-4">Envíanos un Mensaje</h3>
+                    <form method="post" novalidate id="contactForm">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }} <span class="text-danger">*</span></label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}<div class="invalid-feedback d-block">{{ form.nombre.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }} <span class="text-danger">*</span></label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors|join:", " }}</div>{% endif %}
+                                {% if form.email.help_text %}<div class="form-text small">{{ form.email.help_text|safe }}</div>{% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.asunto.id_for_label }}" class="form-label">{{ form.asunto.label }} <span class="text-danger">*</span></label>
+                                {{ form.asunto }}
+                                {% if form.asunto.errors %}<div class="invalid-feedback d-block">{{ form.asunto.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.mensaje.id_for_label }}" class="form-label">{{ form.mensaje.label }} <span class="text-danger">*</span></label>
+                                {{ form.mensaje }}
+                                {% if form.mensaje.errors %}<div class="invalid-feedback d-block">{{ form.mensaje.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger mt-3" role="alert">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-lg border-0 h-100">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="card-title text-center fw-bold mb-4">Información de Contacto</h3>
+
+                    {% if config.direccion %}
+                    <div class="mb-4">
+                        <h5 class="fw-semibold"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Nuestra Ubicación</h5>
+                        <p class="text-muted">{{ config.direccion|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if config.telefono_contacto %}
+                    <div class="mb-4">
+                        <h5 class="fw-semibold"><i class="fas fa-phone-alt me-2 text-primary"></i>Llámanos</h5>
+                        <p class="text-muted">
+                            <a href="tel:{{ config.telefono_contacto }}" class="text-decoration-none text-dark hover-primary">{{ config.telefono_contacto }}</a>
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% if config.email_contacto %}
+                     <div class="mb-4">
+                        <h5 class="fw-semibold"><i class="fas fa-envelope me-2 text-primary"></i>Escríbenos</h5>
+                        <p class="text-muted">
+                            <a href="mailto:{{ config.email_contacto }}" class="text-decoration-none text-dark hover-primary">{{ config.email_contacto }}</a>
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <h5 class="fw-semibold"><i class="fas fa-clock me-2 text-primary"></i>Horario de Atención</h5>
+                        <p class="text-muted mb-0">Lunes a Viernes: 9:00 AM - 6:00 PM</p>
+                        <p class="text-muted">Sábados: 10:00 AM - 2:00 PM</p>
+                        <p class="text-muted small">(Hora de Venezuela GMT-4)</p>
+                    </div>
+
+                    {% if config.facebook_url or config.instagram_url or config.twitter_url %}
+                    <div class="mt-4">
+                        <h5 class="fw-semibold mb-3"><i class="fas fa-share-alt me-2 text-primary"></i>Síguenos</h5>
+                        {% if config.facebook_url %}
+                        <a href="{{ config.facebook_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-social me-2" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        {% endif %}
+                        {% if config.instagram_url %}
+                        <a href="{{ config.instagram_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-social me-2" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        {% endif %}
+                        {% if config.twitter_url %}
+                        <a href="{{ config.twitter_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-social" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if config.direccion %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                     <div class="ratio ratio-16x9">
+                        <!-- Reemplaza el src con tu mapa embebido real o usa una API si es necesario -->
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125993.7838058352!2d-70.28610204179687!3d8.623741400000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e7a2778b769e277%3A0x3c250919e0406b99!2sBarinas%2C%20Venezuela!5e0!3m2!1ses-419!2sve!4v1678886400000!5m2!1ses-419!2sve"
+                            width="100%"
+                            style="border:0; border-radius: var(--bs-card-inner-border-radius);"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Mapa de ubicación del Hotel Premium MVP en Barinas, Venezuela">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+.btn-social {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Script para asegurar que los campos de Django tengan la clase form-control si no la tienen
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('contactForm');
+    if (form) {
+        var inputs = form.querySelectorAll('input[type="text"], input[type="email"], textarea');
+        inputs.forEach(function(input) {
+            if (!input.classList.contains('form-control')) {
+                input.classList.add('form-control');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+```

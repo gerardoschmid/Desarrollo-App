@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Nuestros Tipos de Habitación{% endblock page_title %}
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    {% block content_title %}
+    <!-- El H1 ya está en base.html -->
+    {% endblock %}
+    <p class="lead text-center mb-5 col-md-8 mx-auto">
+        Encuentra el espacio perfecto para tu descanso y confort. Cada tipo de habitación está diseñado pensando en tus necesidades, ofreciendo una combinación única de estilo, comodidad y funcionalidad.
+    </p>
+
+    {% if tipos_habitacion %}
+    <div class="row g-4 g-lg-5">
+        {% for tipo in tipos_habitacion %}
+        <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+            <div class="card h-100 shadow-sm room-card-list border-0 overflow-hidden">
+                <a href="{{ tipo.get_absolute_url }}" class="text-decoration-none text-dark">
+                    {% if tipo.imagen_principal %}
+                        <img src="{{ tipo.imagen_principal.url }}" class="card-img-top room-card-img-list" alt="Imagen de {{ tipo.nombre }}">
+                    {% else %}
+                        <img src="{% static 'img/placeholder_room_list.jpg' %}" class="card-img-top room-card-img-list" alt="Imagen no disponible para {{ tipo.nombre }}">
+                        <!-- Placeholder: <img src="https://via.placeholder.com/400x280.png?text={{ tipo.nombre|urlencode }}" class="card-img-top room-card-img-list" alt="{{ tipo.nombre }}"> -->
+                    {% endif %}
+                </a>
+                <div class="card-body d-flex flex-column p-4">
+                    <h4 class="card-title fw-bold mb-2"><a href="{{ tipo.get_absolute_url }}" class="text-decoration-none text-primary stretched-link-hover">{{ tipo.nombre }}</a></h4>
+                    <p class="card-text text-muted small flex-grow-1">{{ tipo.descripcion_corta|truncatewords:22|default:"Una excelente opción para tu estancia." }}</p>
+
+                    <ul class="list-unstyled mb-3 small text-muted">
+                        <li><i class="fas fa-users fa-fw me-2 text-secondary"></i>Capacidad: Hasta {{ tipo.capacidad_maxima }} huéspedes</li>
+                        {% if tipo.tipo_cama %}
+                            <li><i class="fas fa-bed fa-fw me-2 text-secondary"></i>Cama(s): {{ tipo.tipo_cama }}</li>
+                        {% endif %}
+                        {% if tipo.tamano_habitacion_m2 %}
+                             <li><i class="fas fa-ruler-combined fa-fw me-2 text-secondary"></i>Tamaño: {{ tipo.tamano_habitacion_m2 }} m²</li>
+                        {% endif %}
+                    </ul>
+                    <p class="h5 text-success fw-semibold mb-3">
+                        Desde ${{ tipo.get_precio_formateado }} <small class="text-muted fw-normal">/ noche</small>
+                    </p>
+                    <div class="mt-auto d-grid">
+                        <a href="{% url 'reservas:crear_reserva' %}?tipo_habitacion={{ tipo.id }}" class="btn btn-warning fw-bold"><i class="fas fa-calendar-alt me-2"></i>Reservar Esta Habitación</a>
+                        <!-- <a href="{{ tipo.get_absolute_url }}" class="btn btn-sm btn-outline-primary mt-2">Ver Detalles y Galería</a> -->
+                    </div>
+                </div>
+                 <div class="card-footer bg-transparent border-top-0 text-center pb-3">
+                    <a href="{{ tipo.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Ver Detalles y Galería</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación (si la implementas en la vista con ListView) -->
+    {% if is_paginated %}
+        <nav aria-label="Navegación de tipos de habitación" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo; Anterior</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&laquo; Anterior</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente &raquo;</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Siguiente &raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="alert alert-info text-center shadow-sm" role="alert">
+        <h4 class="alert-heading"><i class="fas fa-info-circle me-2"></i>No hay tipos de habitación disponibles en este momento.</h4>
+        <p>Estamos actualizando nuestras opciones. Por favor, vuelve a intentarlo más tarde o <a href="{% url 'core:contact' %}" class="alert-link">contacta con nosotros</a> para más información.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+.room-card-list {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+.room-card-list:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 1rem 2.5rem rgba(0,0,0,.12)!important;
+}
+.room-card-img-list {
+    height: 260px; /* Ajusta según necesidad */
+    object-fit: cover;
+    transition: transform 0.3s ease; /* Para un suave zoom en la imagen */
+}
+.room-card-list:hover .room-card-img-list {
+    /* transform: scale(1.03); */ /* Efecto de zoom sutil */
+}
+.stretched-link-hover:hover {
+    color: var(--bs-primary-dark) !important; /* Un poco más oscuro al pasar el mouse */
+    text-decoration: underline !important;
+}
+</style>
+{% endblock %}
+```

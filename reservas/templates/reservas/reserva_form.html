@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Realizar Reserva{% endblock page_title %}
+{% block no_auto_h1 %}True{% endblock %} <!-- El H1 se maneja dentro de este bloque -->
+
+
+{% block content %}
+<div class="container py-4 py-lg-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-9">
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold">Realiza Tu Reserva</h1>
+                <p class="lead text-muted col-md-10 mx-auto">Completa el siguiente formulario para solicitar tu estancia en {{ config.nombre_hotel|default:"Hotel Premium MVP" }}. Nos pondremos en contacto contigo para confirmar.</p>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4 p-sm-5">
+                    <form method="post" id="reservaForm" novalidate>
+                        {% csrf_token %}
+
+                        <h4 class="mb-4 border-bottom pb-3 fw-semibold"><i class="fas fa-user-circle me-2 text-primary"></i>1. Información del Huésped Principal</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nombre_cliente.id_for_label }}" class="form-label">{{ form.nombre_cliente.label }} <span class="text-danger">*</span></label>
+                                {{ form.nombre_cliente }}
+                                {% if form.nombre_cliente.errors %}<div class="invalid-feedback d-block">{{ form.nombre_cliente.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email_cliente.id_for_label }}" class="form-label">{{ form.email_cliente.label }} <span class="text-danger">*</span></label>
+                                {{ form.email_cliente }}
+                                {% if form.email_cliente.errors %}<div class="invalid-feedback d-block">{{ form.email_cliente.errors|join:", " }}</div>{% endif %}
+                                {% if form.email_cliente.help_text %}<div class="form-text small">{{ form.email_cliente.help_text|safe }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.telefono_cliente.id_for_label }}" class="form-label">{{ form.telefono_cliente.label }}</label>
+                                {{ form.telefono_cliente }}
+                                {% if form.telefono_cliente.errors %}<div class="invalid-feedback d-block">{{ form.telefono_cliente.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h4 class="mb-4 border-bottom pb-3 fw-semibold"><i class="fas fa-calendar-alt me-2 text-primary"></i>2. Detalles de la Estancia</h4>
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fecha_llegada.id_for_label }}" class="form-label">{{ form.fecha_llegada.label }} <span class="text-danger">*</span></label>
+                                {{ form.fecha_llegada }}
+                                {% if form.fecha_llegada.errors %}<div class="invalid-feedback d-block">{{ form.fecha_llegada.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.fecha_salida.id_for_label }}" class="form-label">{{ form.fecha_salida.label }} <span class="text-danger">*</span></label>
+                                {{ form.fecha_salida }}
+                                {% if form.fecha_salida.errors %}<div class="invalid-feedback d-block">{{ form.fecha_salida.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.tipo_habitacion_solicitada.id_for_label }}" class="form-label">{{ form.tipo_habitacion_solicitada.label }} <span class="text-danger">*</span></label>
+                                {{ form.tipo_habitacion_solicitada }}
+                                {% if form.tipo_habitacion_solicitada.errors %}<div class="invalid-feedback d-block">{{ form.tipo_habitacion_solicitada.errors|join:", " }}</div>{% endif %}
+                                <div id="availabilityMessage" class="mt-2 small"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_huespedes_adultos.id_for_label }}" class="form-label">{{ form.numero_huespedes_adultos.label }} <span class="text-danger">*</span></label>
+                                {{ form.numero_huespedes_adultos }}
+                                {% if form.numero_huespedes_adultos.errors %}<div class="invalid-feedback d-block">{{ form.numero_huespedes_adultos.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.numero_huespedes_ninos.id_for_label }}" class="form-label">{{ form.numero_huespedes_ninos.label }}</label>
+                                {{ form.numero_huespedes_ninos }}
+                                {% if form.numero_huespedes_ninos.errors %}<div class="invalid-feedback d-block">{{ form.numero_huespedes_ninos.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div id="resumenReserva" class="mt-4 p-3 bg-light-subtle rounded border d-none">
+                            <h5 class="fw-semibold mb-2">Resumen Estimado:</h5>
+                            <p class="mb-1">Noches de estancia: <strong id="nochesEstadia" class="text-primary">--</strong></p>
+                            <p class="mb-0">Precio Total Estimado: <strong id="precioEstimado" class="text-success fs-5">--</strong></p>
+                            <p class="small text-muted mt-1 mb-0">(Este precio es una estimación y será confirmado por el hotel)</p>
+                        </div>
+
+                        <hr class="my-4">
+                        <h4 class="mb-3 border-bottom pb-3 fw-semibold"><i class="fas fa-concierge-bell me-2 text-primary"></i>3. Peticiones Adicionales (Opcional)</h4>
+                        <div class="mb-3">
+                            <label for="{{ form.notas_adicionales_cliente.id_for_label }}" class="form-label">{{ form.notas_adicionales_cliente.label }}</label>
+                            {{ form.notas_adicionales_cliente }}
+                            {% if form.notas_adicionales_cliente.errors %}<div class="invalid-feedback d-block">{{ form.notas_adicionales_cliente.errors|join:", " }}</div>{% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger mt-4" role="alert">
+                                <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Error en la Solicitud:</h5>
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold shadow" id="submitReservaBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud de Reserva
+                            </button>
+                        </div>
+                        <p class="text-center text-muted mt-3 small">
+                            Al enviar esta solicitud, aceptas nuestros <a href="#" class="text-decoration-none">términos y condiciones</a> y <a href="#" class="text-decoration-none">política de privacidad</a>.
+                            Nos pondremos en contacto contigo para confirmar la disponibilidad y el proceso de pago.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+{% include "reservas/snippets/check_availability_scripts.html" %}
+<script>
+// Aplicar clases de Bootstrap a los campos del formulario si no se usa crispy-forms
+// y no se definieron en el widget del form.py
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('reservaForm');
+    if (form) {
+        var inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], input[type="number"], select, textarea');
+        inputs.forEach(function(input) {
+            if (!input.classList.contains('form-control') && !input.classList.contains('form-select')) {
+                if (input.tagName.toLowerCase() === 'select') {
+                    input.classList.add('form-select');
+                } else {
+                    input.classList.add('form-control');
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+```

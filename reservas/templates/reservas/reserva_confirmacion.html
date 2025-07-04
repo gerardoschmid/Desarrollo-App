@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Confirmación de Solicitud de Reserva{% endblock page_title %}
+{% block no_auto_h1 %}True{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-lg-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4 p-sm-5">
+                    <i class="fas fa-check-circle fa-5x text-success mb-4 bounce-animation"></i>
+                    <h1 class="display-6 fw-bold mb-3">¡Solicitud de Reserva Recibida!</h1>
+
+                    <p class="lead mt-3">
+                        Gracias, <strong>{{ reserva.cliente.nombre_completo|default:"estimado cliente" }}</strong>. Hemos recibido tu solicitud de reserva.
+                    </p>
+                    <p class="text-muted">
+                        Nos pondremos en contacto contigo a la brevedad a través de tu correo electrónico (<strong>{{ reserva.cliente.email }}</strong>)
+                        {% if reserva.cliente.telefono %}o teléfono (<strong>{{ reserva.cliente.telefono }}</strong>){% endif %} para confirmar la disponibilidad y procesar el pago.
+                    </p>
+
+                    <div class="alert alert-primary mt-4 py-3 shadow-sm">
+                        <strong class="d-block fs-5">Código de tu Solicitud de Reserva:</strong>
+                        <h3 class="my-2 user-select-all fw-bold text-primary-emphasis">{{ reserva.codigo_reserva }}</h3>
+                        <p class="small mb-0">Por favor, guarda este código para futuras referencias.</p>
+                    </div>
+
+                    <div class="card my-4 text-start shadow-sm">
+                        <div class="card-header bg-light fw-semibold fs-5">
+                           <i class="fas fa-list-alt me-2 text-primary"></i>Detalles de tu Solicitud
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-door-open fa-fw me-2 text-muted"></i>Tipo de Habitación:</span>
+                                <strong>{{ reserva.tipo_habitacion_solicitada.nombre }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar-day fa-fw me-2 text-muted"></i>Fecha de Llegada:</span>
+                                <strong>{{ reserva.fecha_llegada|date:"l, d \d\e F \d\e Y" }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-calendar-times fa-fw me-2 text-muted"></i>Fecha de Salida:</span>
+                                <strong>{{ reserva.fecha_salida|date:"l, d \d\e F \d\e Y" }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-moon fa-fw me-2 text-muted"></i>Noches de Estancia:</span>
+                                <strong>{{ reserva.noches_estadia }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-users fa-fw me-2 text-muted"></i>Adultos:</span>
+                                <strong>{{ reserva.numero_huespedes_adultos }}</strong>
+                            </li>
+                            {% if reserva.numero_huespedes_ninos > 0 %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-child fa-fw me-2 text-muted"></i>Niños:</span>
+                                <strong>{{ reserva.numero_huespedes_ninos }}</strong>
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-success-subtle">
+                                <span><i class="fas fa-money-bill-wave fa-fw me-2 text-success"></i>Precio Total Estimado:</span>
+                                <strong class="text-success fs-5">${{ reserva.precio_total|floatformat:2 }}</strong>
+                            </li>
+                             <li class="list-group-item small text-muted text-center">
+                                (Este precio está sujeto a confirmación final por parte del hotel)
+                            </li>
+                            {% if reserva.notas_adicionales_cliente %}
+                            <li class="list-group-item">
+                                <i class="fas fa-sticky-note fa-fw me-2 text-muted"></i><strong>Notas Adicionales:</strong>
+                                <p class="ms-4 mt-1 mb-0 fst-italic text-muted">{{ reserva.notas_adicionales_cliente|linebreaksbr }}</p>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <p class="mt-4 text-muted">
+                        Si tienes alguna pregunta o necesitas realizar algún cambio en tu solicitud, no dudes en <a href="{% url 'core:contact' %}" class="text-decoration-none">contactarnos</a> mencionando tu código de reserva.
+                    </p>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{% url 'core:index' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Volver a la Página Principal
+                        </a>
+                        <!-- Podrías añadir un botón para 'Ver Mis Reservas' si el usuario está logueado -->
+                        <!-- {% if user.is_authenticated %}
+                        <a href="#" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-briefcase me-2"></i>Ver Mis Solicitudes
+                        </a>
+                        {% endif %} -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_css %}
+<style>
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+.bounce-animation {
+    animation: bounce 1.5s ease-in-out;
+}
+</style>
+{% endblock %}
+```
